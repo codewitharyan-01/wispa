@@ -1,656 +1,1299 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wispa - Your Wearable AI Companion</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <title>Wispa AI — The Future of Voice</title>
+    <meta name="description" content="Meet Wispa. Your voice-first AI companion. Screen-free, intelligent, and always ready.">
+    
     <style>
+        /* 
+         * =========================================
+         * CSS VARIABLES & RESET
+         * =========================================
+         */
+        :root {
+            --bg-color: #050505;
+            --surface-color: #121212;
+            --surface-glass: rgba(255, 255, 255, 0.03);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            
+            --accent-primary: #3b82f6; /* Blue */
+            --accent-secondary: #8b5cf6; /* Purple */
+            --accent-glow: #00d4ff; /* Cyan */
+            
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+            
+            --font-display: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            
+            --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+            --container-width: 1200px;
+            --header-height: 80px;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #F0F2F5; /* Light Gray */
-            color: #2D3748; /* Dark Gray */
-        }
-        h1, h2, h3 {
-            font-family: 'Playfair Display', serif;
-        }
-        .nav-link {
-            transition: color 0.3s ease, border-bottom-color 0.3s ease;
-            border-bottom: 2px solid transparent;
-            padding-bottom: 4px;
-        }
-        .nav-link.active, .nav-link:hover {
-            color: #6B46C1; /* Amethyst */
-            border-bottom-color: #6B46C1;
-        }
-        .card {
-            background-color: white;
-            border-radius: 1rem; /* More rounded */
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); /* Stronger shadow */
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .card:hover {
-            transform: translateY(-8px); /* More pronounced lift */
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15); /* Even stronger shadow */
-        }
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 650px; /* Slightly wider */
-            margin-left: auto;
-            margin-right: auto;
-            height: 400px; /* Slightly taller */
-        }
-        @media (max-width: 768px) {
-            .chart-container {
-                height: 320px;
-                max-width: 500px;
-            }
-        }
-        .btn-primary {
-            background-color: #805AD5; /* Deep Purple */
-            color: white;
-            padding: 0.85rem 2.2rem; /* Slightly larger padding */
-            border-radius: 0.6rem;
-            font-weight: 600;
-            transition: background-color 0.2s ease, transform 0.1s ease;
-        }
-        .btn-primary:hover {
-            background-color: #6B46C1; /* Darker Amethyst on hover */
-            transform: translateY(-2px);
-        }
-        .btn-secondary {
-            background-color: white;
-            color: #805AD5;
-            border: 2px solid #805AD5;
-            padding: 0.85rem 2.2rem;
-            border-radius: 0.6rem;
-            font-weight: 600;
-            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
-        }
-        .btn-secondary:hover {
-            background-color: #805AD5;
-            color: white;
-            border-color: #805AD5;
-            transform: translateY(-2px);
-        }
-        .hero-pattern {
-            background: linear-gradient(135deg, #A78BFA 0%, #805AD5 100%); /* Gradient background */
-            position: relative;
-            overflow: hidden;
-        }
-        .hero-pattern::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at top left, rgba(255,255,255,0.1) 10%, transparent 40%),
-                        radial-gradient(circle at bottom right, rgba(255,255,255,0.1) 10%, transparent 40%);
-            z-index: 0;
-            opacity: 0.4;
-            animation: movePattern 20s linear infinite;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-display);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        @keyframes movePattern {
-            0% { transform: translate(0, 0); }
-            25% { transform: translate(5%, 5%); }
-            50% { transform: translate(0, 0); }
-            75% { transform: translate(-5%, -5%); }
-            100% { transform: translate(0, 0); }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
 
-        /* Innovation: Scroll-triggered animations for sections */
-        .animate-fade-in {
+        /* 
+         * =========================================
+         * UTILITIES & ANIMATIONS
+         * =========================================
+         */
+        .container {
+            width: 90%;
+            max-width: var(--container-width);
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .text-gradient-accent {
+            background: linear-gradient(135deg, var(--accent-glow) 0%, var(--accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-padding {
+            padding: 120px 0;
+        }
+
+        .grid {
+            display: grid;
+            gap: 2rem;
+        }
+
+        /* Animation Classes for JS Intersection Observer */
+        .reveal {
             opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            transform: translateY(30px);
+            transition: all 1s var(--ease-out-expo);
         }
-        .animate-fade-in.is-visible {
+
+        .reveal.active {
             opacity: 1;
             transform: translateY(0);
         }
 
-        /* Magic: Particle effect for the hero section */
-        .hero-particles {
-            position: absolute;
+        .stagger-delay-1 { transition-delay: 0.1s; }
+        .stagger-delay-2 { transition-delay: 0.2s; }
+        .stagger-delay-3 { transition-delay: 0.3s; }
+        .stagger-delay-4 { transition-delay: 0.4s; }
+
+        /* 
+         * =========================================
+         * NAVIGATION
+         * =========================================
+         */
+        nav {
+            position: fixed;
             top: 0;
-            left: 0;
             width: 100%;
+            height: var(--header-height);
+            z-index: 1000;
+            background: rgba(5, 5, 5, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-glass);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             height: 100%;
-            z-index: 1; /* Below content, above pattern */
-            pointer-events: none; /* Allows clicks to pass through */
         }
-        .particle {
-            position: absolute;
-            background-color: rgba(255, 255, 255, 0.6);
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo span {
+            width: 12px;
+            height: 12px;
+            background: var(--accent-glow);
             border-radius: 50%;
-            opacity: 0;
-            animation: floatAndFade 10s infinite ease-out;
+            box-shadow: 0 0 15px var(--accent-glow);
         }
-        @keyframes floatAndFade {
-            0% {
-                transform: translateY(0) translateX(0) scale(0);
-                opacity: 0;
-            }
-            10% {
-                opacity: 1;
-                transform: scale(1);
-            }
-            80% {
-                opacity: 0.2;
-            }
-            100% {
-                transform: translateY(-200px) translateX(100px) scale(1.2);
-                opacity: 0;
-            }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
         }
-        .particle:nth-child(2n) { animation-delay: 1.5s; animation-duration: 12s; }
-        .particle:nth-child(3n) { animation-delay: 3s; animation-duration: 8s; }
-        .particle:nth-child(4n) { animation-delay: 4.5s; animation-duration: 15s; }
-        .particle:nth-child(5n) { animation-delay: 6s; animation-duration: 9s; }
 
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
 
-        /* Automation: Auto-fill contact form suggestion */
-        #contact-email:not(:placeholder-shown) + button[type="submit"] {
-            background-color: #6B46C1; /* Darker purple to indicate readiness */
-            border-color: #6B46C1;
+        .nav-links a:hover {
+            color: var(--text-main);
+        }
+
+        .btn-nav {
+            padding: 0.6rem 1.2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-glass);
+            border-radius: 30px;
+            color: white;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-nav:hover {
+            background: white;
+            color: black;
+        }
+
+        /* Mobile Menu */
+        .mobile-toggle {
+            display: none;
+            color: white;
+            font-size: 1.5rem;
             cursor: pointer;
         }
 
-        /* Responsive adjustments for headings */
-        @media (max-width: 640px) {
-            h1 { font-size: 3.5rem; } /* Smaller on mobile */
-            h2 { font-size: 2.5rem; }
+        /* 
+         * =========================================
+         * HERO SECTION
+         * =========================================
+         */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding-top: var(--header-height);
         }
+
+        /* Background Ambient Glow */
+        .hero-glow {
+            position: absolute;
+            width: 60vw;
+            height: 60vw;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(0,0,0,0) 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            animation: pulseGlow 8s infinite alternate;
+        }
+
+        .hero-content {
+            text-align: center;
+            max-width: 800px;
+            z-index: 2;
+            pointer-events: none; /* Let clicks pass through for parallax */
+        }
+        
+        .hero-content > * {
+            pointer-events: auto; /* Re-enable clicks on text */
+        }
+
+        h1 {
+            font-size: 4rem;
+            line-height: 1.1;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-sub {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s var(--ease-out-expo);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border: none;
+            box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px -10px rgba(59, 130, 246, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Hero Orb Canvas */
+        #orb-canvas {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            max-width: 800px; /* Constraint */
+        }
+
+        /* 
+         * =========================================
+         * WHAT IS WISPA (CARDS)
+         * =========================================
+         */
+        .features-grid {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            margin-top: 4rem;
+        }
+
+        .card {
+            background: var(--surface-glass);
+            border: 1px solid var(--border-glass);
+            padding: 2.5rem;
+            border-radius: 24px;
+            transition: transform 0.4s var(--ease-out-expo), border-color 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Subtle glow effect inside card on hover */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: var(--accent-glow);
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* 
+         * =========================================
+         * CORE FEATURES (LIST)
+         * =========================================
+         */
+        .feature-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 4rem;
+            gap: 4rem;
+        }
+
+        .feature-row:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .feature-text {
+            flex: 1;
+        }
+
+        .feature-visual {
+            flex: 1;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .feature-visual svg {
+            width: 80px;
+            height: 80px;
+            color: var(--accent-secondary);
+            filter: drop-shadow(0 0 20px var(--accent-secondary));
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* 
+         * =========================================
+         * COMPARISON
+         * =========================================
+         */
+        .comparison-wrapper {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .comp-item {
+            padding: 2rem;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .comp-item.wispa {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.1);
+        }
+
+        .comp-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        
+        .comp-item.wispa .comp-icon {
+            color: var(--accent-glow);
+        }
+
+        .check-list {
+            list-style: none;
+            margin-top: 1.5rem;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .check-list li {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .check-list li.active {
+            color: white;
+        }
+
+        .check-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1px solid #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .active .check-icon {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+        
+        .active .check-icon::after {
+            content: '✓';
+            font-size: 10px;
+            color: white;
+        }
+
+        /* 
+         * =========================================
+         * HOW IT WORKS (TIMELINE)
+         * =========================================
+         */
+        .timeline {
+            position: relative;
+            margin-top: 4rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, var(--border-glass), transparent);
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6rem;
+            position: relative;
+        }
+
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-content {
+            width: 45%;
+            text-align: right;
+        }
+        
+        .timeline-item:nth-child(even) .timeline-content {
+            text-align: left;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background: var(--bg-color);
+            border: 2px solid var(--accent-secondary);
+            border-radius: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 10px var(--accent-secondary);
+            z-index: 2;
+        }
+
+        .timeline-dot {
+            width: 100%;
+            height: 100%;
+            background: var(--accent-secondary);
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .timeline-item.active .timeline-dot {
+            opacity: 1;
+        }
+
+        /* 
+         * =========================================
+         * TARGET USERS
+         * =========================================
+         */
+        .users-grid {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .user-card {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            transition: transform 0.3s;
+        }
+
+        .user-card:hover {
+            transform: scale(1.03);
+            background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* 
+         * =========================================
+         * FUTURE VISION
+         * =========================================
+         */
+        .future-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .future-card {
+            padding: 3rem;
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            min-height: 250px;
+        }
+
+        .future-card.f-1 {
+            background: linear-gradient(45deg, #1e1b4b, #0f172a);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .future-card.f-2 {
+            background: linear-gradient(45deg, #312e81, #1e1b4b);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .future-card h4 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            z-index: 2;
+        }
+        
+        .future-card p {
+            z-index: 2;
+        }
+
+        .bg-blur {
+            position: absolute;
+            top: -20%;
+            left: -20%;
+            width: 200px;
+            height: 200px;
+            background: var(--accent-primary);
+            filter: blur(80px);
+            opacity: 0.4;
+            z-index: 1;
+        }
+
+        /* 
+         * =========================================
+         * CTA & FOOTER
+         * =========================================
+         */
+        .cta-section {
+            text-align: center;
+            background: radial-gradient(circle at center, rgba(59, 130, 246, 0.15) 0%, rgba(5,5,5,0) 70%);
+        }
+
+        .email-form {
+            max-width: 500px;
+            margin: 2rem auto 0;
+            position: relative;
+            display: flex;
+            gap: 10px;
+        }
+
+        .email-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-glass);
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .email-input:focus {
+            border-color: var(--accent-primary);
+        }
+
+        .submit-btn {
+            background: white;
+            color: black;
+            border: none;
+            padding: 0 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: scale(1.05);
+        }
+
+        footer {
+            border-top: 1px solid var(--border-glass);
+            padding: 4rem 0 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-grid {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .socials {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .social-icon:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* 
+         * =========================================
+         * RESPONSIVE
+         * =========================================
+         */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.8rem; }
+            .hero-sub { font-size: 1rem; }
+            
+            .nav-links, .btn-nav { display: none; }
+            .mobile-toggle { display: block; }
+            
+            .comparison-wrapper {
+                grid-template-columns: 1fr;
+            }
+            
+            .feature-row, .feature-row:nth-child(even) {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .timeline::before { left: 20px; }
+            .timeline-item, .timeline-item:nth-child(even) {
+                flex-direction: row;
+                justify-content: flex-start;
+                padding-left: 50px;
+            }
+            .timeline-marker { left: 20px; }
+            .timeline-content { text-align: left !important; width: 100%; }
+            
+            .future-grid { grid-template-columns: 1fr; }
+            
+            .email-form { flex-direction: column; }
+            .submit-btn { padding: 1rem; }
+        }
+
+        /* Toast Notification */
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            color: black;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 2000;
+            font-weight: 500;
+        }
+        
+        #toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
     </style>
 </head>
-<body class="antialiased">
+<body>
 
-    <header class="bg-white/95 backdrop-blur-lg sticky top-0 z-50 shadow-md">
-        <nav class="container mx-auto px-6 py-4">
-            <div class="flex items-center justify-between">
-                <a href="#" class="text-4xl font-extrabold text-[#805AD5]">Wispa</a>
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="#overview" class="nav-link text-gray-600 font-medium">Overview</a>
-                    <a href="#features" class="nav-link text-gray-600 font-medium">Features</a>
-                    <a href="#impact" class="nav-link text-gray-600 font-medium">Impact</a>
-                    <a href="#companion-app" class="nav-link text-gray-600 font-medium">Companion App</a>
-                    <a href="#team" class="nav-link text-gray-600 font-medium">Team</a>
-                    <a href="#contact" class="nav-link text-white bg-[#805AD5] hover:bg-[#6B46C1] py-2 px-4 rounded-md">Get Wispa</a>
-                </div>
-                <button id="mobile-menu-button" class="md:hidden focus:outline-none">
-                    <div class="w-7 h-0.5 bg-gray-800 mb-1.5"></div>
-                    <div class="w-7 h-0.5 bg-gray-800 mb-1.5"></div>
-                    <div class="w-7 h-0.5 bg-gray-800"></div>
-                </button>
-            </div>
-            <div id="mobile-menu" class="hidden md:hidden mt-4 space-y-2">
-                <a href="#overview" class="block py-2 text-gray-700 hover:text-[#805AD5]">Overview</a>
-                <a href="#features" class="block py-2 text-gray-700 hover:text-[#805AD5]">Features</a>
-                <a href="#impact" class="block py-2 text-gray-700 hover:text-[#805AD5]">Impact</a>
-                <a href="#companion-app" class="block py-2 text-gray-700 hover:text-[#805AD5]">Companion App</a>
-                <a href="#team" class="block py-2 text-gray-700 hover:text-[#805AD5]">Team</a>
-                <a href="#contact" class="block py-3 text-white bg-[#805AD5] text-center rounded-md mt-3">Get Wispa</a>
-            </div>
-        </nav>
-    </header>
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="container nav-inner">
+            <a href="#" class="logo"><span></span>Wispa AI</a>
+            <ul class="nav-links">
+                <li><a href="#what-is">What is Wispa</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#comparison">Why Wispa</a></li>
+                <li><a href="#future">Vision</a></li>
+            </ul>
+            <a href="#cta" class="btn-nav">Join Waitlist</a>
+            <div class="mobile-toggle">☰</div>
+        </div>
+    </nav>
 
-    <main class="container mx-auto px-6 py-12">
-
-        <section id="hero" class="text-center py-24 md:py-36 rounded-2xl mb-16 hero-pattern relative">
-            <div class="hero-particles"></div> <div class="relative z-10">
-                <div class="w-32 h-32 mx-auto mb-10 bg-white/30 rounded-full flex items-center justify-center backdrop-blur-sm shadow-xl animate-bounce-slow">
-                    <span class="text-7xl">👂</span>
-                </div>
-                <h1 class="text-6xl md:text-8xl font-extrabold text-white mb-8 tracking-tight drop-shadow-lg">Live More, Distract Less.</h1>
-                <p class="text-xl md:text-2xl text-gray-100 max-w-5xl mx-auto drop-shadow-md leading-relaxed">Wispa is your discreet, screen-free AI companion, empowering you to stay focused, organized, and truly present in every moment.</p>
-                <div class="mt-12 flex flex-col sm:flex-row justify-center space-y-5 sm:space-y-0 sm:space-x-6">
-                    <a href="#features" class="btn-secondary bg-white text-[#805AD5] hover:bg-[#805AD5] hover:text-white text-xl">Discover Wispa</a>
-                    <a href="#contact" class="btn-primary bg-[#805AD5] text-white hover:bg-[#6B46C1] text-xl">Pre-Order Now</a>
-                </div>
-            </div>
-        </section>
-
-        <section id="overview" class="py-16 animate-fade-in">
-            <div class="text-center mb-14">
-                <h2 class="text-5xl font-bold text-[#2D3748] mb-5">Redefining Digital Interaction.</h2>
-                <p class="text-lg text-gray-600 max-w-4xl mx-auto leading-relaxed">In an era of constant notifications, Wispa offers a mindful alternative, fostering genuine presence and seamless productivity.</p>
-            </div>
-            <div class="grid md:grid-cols-2 gap-12 items-stretch">
-                <div class="card p-10 flex flex-col border border-gray-200">
-                    <h3 class="text-3xl font-bold text-[#E53E3E] mb-5 flex items-center">
-                        <span class="mr-4 text-4xl">📵</span> The Screen Syndrome
-                    </h3>
-                    <p class="text-gray-700 flex-grow leading-loose text-lg">
-                        Our modern lives are dominated by screens, leading to an epidemic of digital distraction, diminished presence, and eye strain. We're constantly pulled away from real-world interactions and deeper focus, making it challenging to truly engage with our surroundings or maintain an uninterrupted workflow. This perpetual digital tether often sacrifices genuine connection and deep work for fleeting alerts.
-                    </p>
-                </div>
-                <div class="card p-10 flex flex-col bg-[#805AD5] text-white">
-                    <h3 class="text-3xl font-bold mb-5 flex items-center">
-                        <span class="mr-4 text-4xl">🌟</span> The Wispa Revolution
-                    </h3>
-                    <p class="flex-grow leading-loose text-lg">
-                        Wispa is a groundbreaking, compact, and **screen-free** AI assistant designed to seamlessly integrate into your life without demanding your visual attention. Utilizing advanced **on-device AI** and intuitive **voice commands**, Wispa manages your reminders, notes, and provides instant information, freeing your eyes and hands. This innovative approach allows you to stay effortlessly productive and connected while fully immersing yourself in the physical world, dramatically reducing screen dependency and enhancing real-world presence.
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <section id="features" class="py-16 bg-gradient-to-br from-[#E9D8FD] to-[#D6BCFA] rounded-2xl animate-fade-in">
-            <div class="text-center mb-14">
-                <h2 class="text-5xl font-bold text-[#2D3748] mb-5">Seamlessly Smart, Unobtrusively Powerful.</h2>
-                <p class="mt-4 text-lg text-gray-700 max-w-4xl mx-auto leading-relaxed">Wispa leverages cutting-edge technology to offer an intuitively intelligent and empowering user experience.</p>
-            </div>
-            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
-                <div class="card p-8 text-center flex flex-col items-center">
-                    <div class="flex items-center justify-center h-24 w-24 rounded-full bg-[#F0EEF5] mx-auto mb-6 shadow-inner">
-                        <span class="text-5xl">🗣️</span>
-                    </div>
-                    <h3 class="text-2xl font-semibold mb-3 text-[#6B46C1]">Intuitive Voice Interaction</h3>
-                    <p class="text-gray-600 text-base">Activate Wispa with a personalized wake word. Control everything with natural language commands.</p>
-                </div>
-                <div class="card p-8 text-center flex flex-col items-center">
-                    <div class="flex items-center justify-center h-24 w-24 rounded-full bg-[#F0EEF5] mx-auto mb-6 shadow-inner">
-                        <span class="text-5xl">🛡️</span>
-                    </div>
-                    <h3 class="text-2xl font-semibold mb-3 text-[#6B46C1]">Robust Data Privacy</h3>
-                    <p class="text-gray-600 text-base">All core AI processing happens directly on your device, ensuring your conversations remain private.</p>
-                </div>
-                <div class="card p-8 text-center flex flex-col items-center">
-                    <div class="flex items-center justify-center h-24 w-24 rounded-full bg-[#F0EEF5] mx-auto mb-6 shadow-inner">
-                        <span class="text-5xl">🧠</span>
-                    </div>
-                    <h3 class="text-2xl font-semibold mb-3 text-[#6B46C1]">Adaptive Intelligence</h3>
-                    <p class="text-gray-600 text-base">Wispa intelligently learns from your usage patterns, anticipating needs and offering truly proactive assistance.</p>
-                </div>
-                <div class="card p-8 text-center flex flex-col items-center">
-                    <div class="flex items-center justify-center h-24 w-24 rounded-full bg-[#F0EEF5] mx-auto mb-6 shadow-inner">
-                        <span class="text-5xl">⚡</span>
-                    </div>
-                    <h3 class="text-2xl font-semibold mb-3 text-[#6B46C1]">Extended Power Reserve</h3>
-                    <p class="text-gray-600 text-base">Engineered for endurance, Wispa boasts an all-day battery life, supporting your longest ventures.</p>
-                </div>
-            </div>
-        </section>
-
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-glow"></div>
+        <canvas id="orb-canvas"></canvas>
         
-
-        <section id="companion-app" class="py-16 bg-gradient-to-br from-[#F0EEF5] to-[#E9D8FD] rounded-2xl animate-fade-in">
-            <div class="text-center mb-14">
-                <h2 class="text-5xl font-bold text-[#2D3748] mb-5">Your Control Center: The Wispa App.</h2>
-                <p class="mt-4 text-lg text-gray-700 max-w-4xl mx-auto leading-relaxed">While Wispa empowers you hands-free, its beautifully designed companion app offers comprehensive control and insights for advanced customization and management.</p>
+        <div class="container hero-content">
+            <h1 class="text-gradient">Meet Wispa.<br>Your Voice-First AI Companion.</h1>
+            <p class="hero-sub">A compact wearable that helps you manage tasks, reminders, and daily life using hands-free voice commands. Reduce screen dependency. Boost productivity.</p>
+            <div class="btn-group">
+                <a href="#cta" class="btn btn-primary">Join the Waitlist</a>
+                <a href="#how-it-works" class="btn btn-secondary">See How It Works</a>
             </div>
-            <div class="grid md:grid-cols-3 gap-10">
-                <div class="card p-8 text-center flex flex-col items-center">
-                    <span class="text-6xl mb-5">📊</span>
-                    <h3 class="text-2xl font-semibold mb-3 text-[#6B46C1]">Intuitive Personal Dashboard</h3>
-                    <p class="text-gray-600 text-base">Gain instant access to Wispa's vitals: battery, connectivity, and a concise summary of your recent interactions.</p>
-                </div>
-                <div class="card p-8 text-center flex flex-col items-center">
-                    <span class="text-6xl mb-5">📝</span>
-                    <h3 class="text-2xl font-semibold mb-3 text-[#6B46C1]">Effortless Task Management</h3>
-                    <p class="text-gray-600 text-base">Organize, review, and manage all your voice-created reminders and notes with unparalleled ease. Add, edit, or delete tasks seamlessly.</p>
-                </div>
-                <div class="card p-8 text-center flex flex-col items-center">
-                    <span class="text-6xl mb-5">🛠️</span>
-                    <h3 class="text-2xl font-semibold mb-3 text-[#6B46C1]">Deep Personalization Options</h3>
-                    <p class="text-gray-600 text-base">Tailor your Wispa experience by customizing its wake word, voice profile, haptic feedback, and a host of other preferences.</p>
-                </div>
-            </div>
-            <div class="text-center mt-16">
-                <a href="#contact" class="btn-primary text-xl">Download the App (Coming Soon!)</a>
-            </div>
-        </section>
+        </div>
+    </section>
 
-        <section id="team" class="py-16 animate-fade-in">
-            <div class="text-center mb-14">
-                <h2 class="text-5xl font-bold text-[#2D3748] mb-5">The Innovators Behind Wispa.</h2>
-                <p class="mt-4 text-lg text-gray-600 max-w-4xl mx-auto leading-relaxed">Meet the passionate minds dedicated to bringing Wispa to life, guided by invaluable expert mentorship.</p>
-            </div>
-           
-
-
-
-		   <div class="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto">
-                <div class="card p-8 text-center">
-                    <h3 class="text-2xl font-semibold mb-2 text-[#6B46C1]">Aryan Patel</h3>
-                    <p class="text-[#805AD5] font-medium mb-3 text-lg">Team Leader & Visionary</p>
-                    <p class="text-gray-600 text-base leading-relaxed">A proven leader and innovator, recognized for his strategic insights and a notable Ideathon runner-up achievement.</p>
+    <!-- What is Wispa -->
+    <section id="what-is" class="section-padding">
+        <div class="container">
+            <h2 class="reveal text-gradient" style="font-size: 2.5rem; text-align: center;">Less Screen. More Life.</h2>
+            <div class="grid features-grid">
+                <div class="card reveal stagger-delay-1">
+                    <div class="card-icon">🎙️</div>
+                    <h3>Voice-First</h3>
+                    <p>Natural conversation flow. No complex menus, just speak naturally like you would to a friend.</p>
                 </div>
-                <div class="card p-8 text-center">
-                    <h3 class="text-2xl font-semibold mb-2 text-[#6B46C1]">Harshvardhan Vaghela</h3>
-                    <p class="text-[#805AD5] font-medium mb-3 text-lg">Hardware & Systems Architect</p>
-                    <p class="text-gray-600 text-base leading-relaxed">Celebrated for his technical acumen, including an award for a sophisticated smart city web model.</p>
+                <div class="card reveal stagger-delay-2">
+                    <div class="card-icon">👟</div>
+                    <h3>Screen-Free</h3>
+                    <p>A discreet wearable that keeps you connected to the digital world without disconnecting you from reality.</p>
                 </div>
-                <div class="card p-8 text-center">
-                    <h3 class="text-2xl font-semibold mb-2 text-[#6B46C1]">Yash Valand</h3>
-                    <p class="text-[#805AD5] font-medium mb-3 text-lg">AI & Software Engineer</p>
-                    <p class="text-gray-600 text-base leading-relaxed">
-					
-					A specialist in advanced algorithms and AI implementation, forming the intelligent core of Wispa.</p>
+                <div class="card reveal stagger-delay-3">
+                    <div class="card-icon">🧠</div>
+                    <h3>AI-Powered</h3>
+                    <p>Powered by the latest LLMs to understand context, intent, and manage complex workflows effortlessly.</p>
                 </div>
             </div>
-			
-			
-			
+        </div>
+    </section>
 
-	
-             <div class="text-center mt-16">
-                <h3 class="text-3xl font-bold text-[#2D3748] mb-6">Empowered by Esteemed Guidance</h3>
-                <div class="mt-4 space-y-3 text-xl text-gray-700">
-                    <p><strong>Mentor:</strong> Mrs. Priyanka Patel, Head of Computer Dept.</p>
-                    <p><strong>Strategic Guidance:</strong> Dr. Anil Suthar (Principal)</p>
+    <!-- Core Features -->
+    <section id="features" class="section-padding" style="background: rgba(255,255,255,0.02);">
+        <div class="container">
+            <div class="feature-row reveal">
+                <div class="feature-text">
+                    <h2 class="text-gradient">Instant Activation</h2>
+                    <p style="margin-top: 1rem; color: var(--text-muted);">Simply say "Hey Wispa" and the device instantly wakes up. Our low-power processing unit ensures it's always listening but never draining your battery.</p>
+                </div>
+                <div class="feature-visual">
+                    <!-- Icon representing Voice Waves -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
                 </div>
             </div>
-        </section>
 
-        <section id="contact" class="py-20 bg-[#805AD5] text-white rounded-2xl text-center animate-fade-in">
-            <h2 class="text-5xl font-bold mb-6">Embark on the Wispa Journey.</h2>
-            <p class="text-xl mb-10 max-w-4xl mx-auto leading-relaxed">Be among the first to experience truly seamless, screen-free living. Subscribe for exclusive updates and early access opportunities.</p>
-            <form class="max-w-2xl mx-auto flex flex-col sm:flex-row gap-5 px-4">
-                <input type="email" id="contact-email" placeholder="Enter your email address to stay updated" class="p-4 rounded-lg flex-grow text-[#2D3748] text-lg focus:ring-2 focus:ring-[#E9D8FD] focus:outline-none" aria-label="Email address">
-                <button type="submit" class="btn-secondary bg-white text-[#805AD5] hover:bg-[#6B46C1] hover:text-white border border-white text-xl">Sign Up for Updates</button>
+            <div class="feature-row reveal">
+                <div class="feature-text">
+                    <h2 class="text-gradient">Smart Memory</h2>
+                    <p style="margin-top: 1rem; color: var(--text-muted);">"Wispa, remind me to call Mom when I get home." It uses GPS and context to trigger reminders at the perfect moment. It learns your habits.</p>
+                </div>
+                <div class="feature-visual">
+                    <!-- Icon representing Brain/Memory -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                </div>
+            </div>
+            
+            <div class="feature-row reveal">
+                <div class="feature-text">
+                    <h2 class="text-gradient">Privacy Focused</h2>
+                    <p style="margin-top: 1rem; color: var(--text-muted);">Your voice data is processed locally whenever possible. We use end-to-end encryption for cloud requests. You have full control over your data history.</p>
+                </div>
+                <div class="feature-visual">
+                    <!-- Icon representing Shield -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison -->
+    <section id="comparison" class="section-padding">
+        <div class="container">
+            <h2 class="reveal text-gradient" style="text-align: center; font-size: 2.5rem;">Why Wispa?</h2>
+            <p class="reveal" style="text-align: center; color: var(--text-muted); margin-top: 1rem;">Better than a smartphone. Smarter than a watch.</p>
+            
+            <div class="comparison-wrapper reveal">
+                <div class="comp-item">
+                    <span class="comp-icon">📱</span>
+                    <h4>Smartphone</h4>
+                    <ul class="check-list">
+                        <li><div class="check-icon"></div>Distracting UI</li>
+                        <li><div class="check-icon"></div>Requires Hands</li>
+                        <li><div class="check-icon"></div>Eye Strain</li>
+                    </ul>
+                </div>
+                <div class="comp-item">
+                    <span class="comp-icon">⌚</span>
+                    <h4>Smartwatch</h4>
+                    <ul class="check-list">
+                        <li><div class="check-icon"></div>Small Screen</li>
+                        <li><div class="check-icon"></div>Bad Battery</li>
+                        <li><div class="check-icon"></div>Limited Mic</li>
+                    </ul>
+                </div>
+                <div class="comp-item">
+                    <span class="comp-icon">🔊</span>
+                    <h4>Smart Speaker</h4>
+                    <ul class="check-list">
+                        <li><div class="check-icon"></div>Stationary</li>
+                        <li><div class="check-icon"></div>Public Privacy</li>
+                        <li><div class="check-icon"></div>No Mobility</li>
+                    </ul>
+                </div>
+                <div class="comp-item wispa">
+                    <span class="comp-icon">✨</span>
+                    <h4>Wispa AI</h4>
+                    <ul class="check-list">
+                        <li class="active"><div class="check-icon"></div>Screen-Free</li>
+                        <li class="active"><div class="check-icon"></div>Always with you</li>
+                        <li class="active"><div class="check-icon"></div>Privacy First</li>
+                        <li class="active"><div class="check-icon"></div>Proactive AI</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how-it-works" class="section-padding">
+        <div class="container">
+            <h2 class="reveal text-gradient" style="text-align: center; font-size: 2.5rem;">Seamless Flow</h2>
+            
+            <div class="timeline">
+                <div class="timeline-item reveal">
+                    <div class="timeline-marker"><div class="timeline-dot"></div></div>
+                    <div class="timeline-content">
+                        <h3>1. Speak</h3>
+                        <p style="color:var(--text-muted);">Ask Wispa to add a task, answer a question, or send a message.</p>
+                    </div>
+                </div>
+                <div class="timeline-item reveal">
+                    <div class="timeline-marker"><div class="timeline-dot"></div></div>
+                    <div class="timeline-content">
+                        <h3>2. Process</h3>
+                        <p style="color:var(--text-muted);">Our secure cloud AI parses your intent in milliseconds.</p>
+                    </div>
+                </div>
+                <div class="timeline-item reveal">
+                    <div class="timeline-marker"><div class="timeline-dot"></div></div>
+                    <div class="timeline-content">
+                        <h3>3. Respond</h3>
+                        <p style="color:var(--text-muted);">Wispa confirms the action via high-fidelity audio or haptic feedback.</p>
+                    </div>
+                </div>
+                <div class="timeline-item reveal">
+                    <div class="timeline-marker"><div class="timeline-dot"></div></div>
+                    <div class="timeline-content">
+                        <h3>4. Sync</h3>
+                        <p style="color:var(--text-muted);">Everything updates automatically in the Wispa mobile app.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Target Users -->
+    <section class="section-padding" style="background: rgba(255,255,255,0.02);">
+        <div class="container">
+            <h2 class="reveal text-gradient" style="text-align: center; font-size: 2.5rem;">Built for Everyone</h2>
+            <div class="grid users-grid">
+                <div class="user-card reveal stagger-delay-1">
+                    <div class="avatar">
+                        <img src="https://picsum.photos/seed/student/150/150" alt="Student">
+                    </div>
+                    <h3>Students</h3>
+                    <p style="color:var(--text-muted); margin-top:0.5rem;">"Record lectures, set study reminders, and quiz yourself verbally while walking to class."</p>
+                </div>
+                <div class="user-card reveal stagger-delay-2">
+                    <div class="avatar">
+                        <img src="https://picsum.photos/seed/pro/150/150" alt="Professional">
+                    </div>
+                    <h3>Professionals</h3>
+                    <p style="color:var(--text-muted); margin-top:0.5rem;">"Capture fleeting ideas on the go and manage your calendar without leaving a meeting."</p>
+                </div>
+                <div class="user-card reveal stagger-delay-3">
+                    <div class="avatar">
+                        <img src="https://picsum.photos/seed/grandma/150/150" alt="Elderly">
+                    </div>
+                    <h3>Elderly Users</h3>
+                    <p style="color:var(--text-muted); margin-top:0.5rem;">"Stay connected with family via simple voice commands. No confusing touch screens required."</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Future Vision -->
+    <section id="future" class="section-padding">
+        <div class="container">
+            <h2 class="reveal text-gradient" style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem;">The Road Ahead</h2>
+            <div class="grid future-grid">
+                <div class="future-card f-1 reveal">
+                    <div class="bg-blur"></div>
+                    <h4>Multilingual & Offline</h4>
+                    <p style="color: #cbd5e1;">Support for 50+ languages and on-device processing for key features when you're off the grid.</p>
+                </div>
+                <div class="future-card f-2 reveal stagger-delay-1">
+                    <div class="bg-blur" style="background: var(--accent-secondary); left: auto; right: -20%;"></div>
+                    <h4>Smart Home Hub</h4>
+                    <p style="color: #cbd5e1;">"Wispa, turn off the lights and lock the door." Deep integration with IoT ecosystems.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section id="cta" class="section-padding cta-section">
+        <div class="container reveal">
+            <h2 class="text-gradient" style="font-size: 3rem;">Be part of the future.</h2>
+            <p style="color: var(--text-muted); margin-top: 1rem; font-size: 1.2rem;">Join the waitlist today and get 20% off launch price.</p>
+            
+            <form class="email-form" id="waitlistForm">
+                <input type="email" class="email-input" placeholder="Enter your email address" required>
+                <button type="submit" class="submit-btn">Join Waitlist</button>
             </form>
-            <p class="text-base text-gray-200 mt-12">For collaboration or business inquiries, please connect with us at <a href="mailto:info@wispa.com" class="underline hover:text-white font-medium">info@wispa.com</a>.</p>
-        </section>
+        </div>
+    </section>
 
-    </main>
-
-    <footer class="bg-[#2D3748] text-white py-10">
-        <div class="container mx-auto px-6 text-center">
-            <p class="text-lg">&copy; 2025 Wispa. All Rights Reserved.</p>
-            <p class="text-sm text-gray-400 mt-3">Innovatively crafted by Aryan Patel, Harshvardhan Vaghela, and Yash Valand.</p>
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="logo"><span></span>Wispa AI</div>
+                <div class="footer-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Press Kit</a>
+                    <a href="#">Contact</a>
+                </div>
+                <div class="socials">
+                    <a href="#" class="social-icon">𝕏</a>
+                    <a href="#" class="social-icon">in</a>
+                    <a href="#" class="social-icon">IG</a>
+                </div>
+            </div>
+            <div style="margin-top: 3rem; color: #555; font-size: 0.8rem;">
+                &copy; 2026 Wispa AI Inc. All rights reserved.
+            </div>
         </div>
     </footer>
 
+    <!-- Toast -->
+    <div id="toast">🎉 You're on the list! Welcome to the future.</div>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // --- Navigation & Scroll Animation (Automated) ---
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-            mobileMenuButton.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-            });
+        /* 
+         * =========================================
+         * CANVAS ORB ANIMATION
+         * =========================================
+         */
+        const canvas = document.getElementById('orb-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let particles = [];
+        
+        // Configuration
+        const particleCount = 60;
+        const connectionDistance = 100;
+        const mouseDistance = 200;
+        
+        // Mouse state
+        let mouse = { x: null, y: null };
 
-            const navLinks = document.querySelectorAll('nav a');
-            navLinks.forEach(link => {
-                link.addEventListener('click', () => {
-                    if (!mobileMenu.classList.contains('hidden')) {
-                        mobileMenu.classList.add('hidden');
-                    }
-                });
-            });
+        // Handle resize
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        
+        window.addEventListener('resize', resize);
+        resize();
 
-            const sections = document.querySelectorAll('section');
-            const navLinkElements = document.querySelectorAll('.nav-link');
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        navLinkElements.forEach(link => {
-                            link.classList.remove('active');
-                            if (link.getAttribute('href') && link.getAttribute('href').substring(1) === entry.target.id) {
-                                link.classList.add('active');
-                            }
-                        });
-                        // Automation: Trigger fade-in animation when section becomes visible
-                        if (entry.target.classList.contains('animate-fade-in') && !entry.target.classList.contains('is-visible')) {
-                            entry.target.classList.add('is-visible');
-                        }
-                    }
-                });
-            }, { rootMargin: "-30% 0px -70% 0px" }); // Adjusted rootMargin for better activation
-
-            sections.forEach(section => {
-                observer.observe(section);
-            });
-
-            // --- Chart Formatting (Innovation) ---
-            const formatLabel = (str, maxLength) => {
-                if (str.length <= maxLength) return str;
-                const words = str.split(' ');
-                const lines = [];
-                let currentLine = '';
-                for (const word of words) {
-                    if ((currentLine + ' ' + word).length > maxLength && currentLine !== '') {
-                        lines.push(currentLine.trim());
-                        currentLine = word;
-                    } else {
-                        currentLine += (currentLine ? ' ' : '') + word;
-                    }
-                }
-                lines.push(currentLine.trim());
-                return lines;
-            };
-            
-            const tooltipTitleCallback = (tooltipItems) => {
-                const item = tooltipItems[0];
-                let label = item.chart.data.labels[item.dataIndex];
-                if (Array.isArray(label)) {
-                    return label.join(' ');
-                }
-                return label;
-            };
-
-            const fundingData = {
-                labels: [
-                    'Hardware Components', 
-                    'AI & Software Integration', 
-                    'Mobile App & UI Design', 
-                    'Patent & Legal Filing', 
-                    'Mentorship & Testing',
-                    'Marketing & Branding Campaigns',
-                    'Business & Operations',
-                    'Contingency Buffer'
-                ].map(label => formatLabel(label, 16)),
-                datasets: [{
-                    label: 'Cost Allocation',
-                    data: [60000, 55000, 30000, 25000, 35000, 20000, 20000, 25000],
-                    backgroundColor: [
-                        '#805AD5', // Deep Purple
-                        '#9F7AEA', // Medium Purple
-                        '#B8A2DC', // Light Purple
-                        '#6B46C1', // Amethyst
-                        '#D6BCFA', // Pale Purple
-                        '#553C9A', // Darker Purple
-                        '#44337A', // Even Darker Purple
-                        '#C5AEEB'  // Very Pale Purple
-                    ],
-                    borderColor: '#F0F2F5', // Light Gray background color
-                    borderWidth: 2,
-                    hoverOffset: 10 // Slightly increased hover offset
-                }]
-            };
-
-            const fundingConfig = {
-                type: 'doughnut',
-                data: fundingData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: '#4A5568', // Darker gray for labels
-                                font: {
-                                    family: "'Montserrat', sans-serif",
-                                    size: 14 // Slightly larger font
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                title: tooltipTitleCallback,
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed !== null) {
-                                        label += new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(context.parsed);
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    cutout: '60%' // Thicker doughnut
-                },
-            };
-
-            const fundingChartCtx = document.getElementById('fundingChart').getContext('2d');
-            new Chart(fundingChartCtx, fundingConfig);
-
-            const marketData = {
-                labels: ['Busy Professionals', 'Active Students', 'Tech-Curious Elderly Users'],
-                datasets: [{
-                    label: 'Market Focus (%)',
-                    data: [45, 35, 20],
-                    backgroundColor: [
-                        'rgba(128, 90, 213, 0.9)', // Deep Purple
-                        'rgba(159, 122, 234, 0.9)', // Medium Purple
-                        'rgba(184, 162, 220, 0.9)', // Light Purple
-                    ],
-                    borderColor: [
-                        '#805AD5',
-                        '#9F7AEA',
-                        '#B8A2DC',
-                    ],
-                    borderWidth: 2
-                }]
-            };
-            
-            const marketConfig = {
-                type: 'bar',
-                data: marketData,
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Market Focus (%)',
-                                color: '#4A5568',
-                                font: { weight: 'bold', size: 14 }
-                            },
-                            ticks: { color: '#666', font: { family: "'Montserrat', sans-serif" } },
-                            grid: { color: '#E2E8F0', drawBorder: false }
-                        },
-                        y: {
-                            ticks: { color: '#4A5568', font: { family: "'Montserrat', sans-serif", size: 14 } },
-                            grid: { display: false }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                             callbacks: {
-                                title: tooltipTitleCallback,
-                                label: function(context) {
-                                    return `${context.label}: ${context.raw}%`;
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-            
-            const marketChartCtx = document.getElementById('marketChart').getContext('2d');
-            new Chart(marketChartCtx, marketConfig);
-
-            // --- Magic: Dynamic Particles in Hero Section ---
-            const heroParticlesContainer = document.querySelector('.hero-particles');
-            function createParticle() {
-                const particle = document.createElement('div');
-                particle.classList.add('particle');
-                const size = Math.random() * 10 + 5; // Size between 5px and 15px
-                particle.style.width = `${size}px`;
-                particle.style.height = `${size}px`;
-                particle.style.left = `${Math.random() * 100}%`;
-                particle.style.top = `${Math.random() * 100}%`;
-                // Randomize animation duration and delay slightly
-                particle.style.animationDuration = `${Math.random() * 8 + 7}s`; // 7-15s
-                particle.style.animationDelay = `${Math.random() * 5}s`; // 0-5s
-                heroParticlesContainer.appendChild(particle);
-
-                // Remove particle after animation to prevent DOM bloat
-                particle.addEventListener('animationend', () => {
-                    particle.remove();
-                });
-            }
-
-            // Generate particles continuously
-            let particleInterval = setInterval(createParticle, 500); // Create a particle every 0.5 seconds
-
-            // Stop generating particles when tab is not active to save resources
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden) {
-                    clearInterval(particleInterval);
-                } else {
-                    particleInterval = setInterval(createParticle, 500);
-                }
-            });
-
-
-            // --- Automation: Auto-populate email if available from local storage ---
-            const contactEmailInput = document.getElementById('contact-email');
-            const storedEmail = localStorage.getItem('userEmailForWispa');
-            if (storedEmail) {
-                contactEmailInput.value = storedEmail;
-            }
-
-            // Automation: Save email to local storage on form submission (or input change for demo)
-            const contactForm = contactEmailInput.closest('form');
-            contactForm.addEventListener('submit', function(event) {
-                event.preventDefault(); // Prevent actual form submission for demo
-                const email = contactEmailInput.value;
-                if (email) {
-                    localStorage.setItem('userEmailForWispa', email);
-                    alert('Thanks for subscribing! Your email has been saved.');
-                    contactEmailInput.value = ''; // Clear for next input
-                } else {
-                    alert('Please enter a valid email address.');
-                }
-            });
-            // Also trigger on input change for immediate visual feedback of automation
-            contactEmailInput.addEventListener('input', function() {
-                if (this.value.length > 0) {
-                    this.closest('form').querySelector('button[type="submit"]').style.backgroundColor = '#6B46C1';
-                    this.closest('form').querySelector('button[type="submit"]').style.borderColor = '#6B46C1';
-                } else {
-                    this.closest('form').querySelector('button[type="submit"]').style.backgroundColor = ''; /* Reset to CSS default */
-                    this.closest('form').querySelector('button[type="submit"]').style.borderColor = ''; /* Reset to CSS default */
-                }
-            });
-
-
-            // Innovation: Subtle 'bouncing' animation for the hero icon
-            const heroIcon = document.querySelector('.hero-pattern .w-32');
-            heroIcon.classList.add('animate-bounce-slow');
-
-            // Define custom keyframe for slow bounce
-            const styleSheet = document.styleSheets[0];
-            const bounceKeyframes = `@keyframes bounce-slow {
-                0%, 100% { transform: translateY(0); }
-                50% { transform: translateY(-10px); }
-            }`;
-            styleSheet.insertRule(bounceKeyframes, styleSheet.cssRules.length);
+        // Mouse listeners
+        document.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = e.clientX - rect.left;
+            mouse.y = e.clientY - rect.top;
         });
+
+        document.addEventListener('mouseleave', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        // Particle Class
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 2 + 1;
+                this.baseColor = 'rgba(59, 130, 246, '; // Blue base
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Bounce off edges
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+
+                // Mouse interaction (Parallax + Repulsion)
+                if (mouse.x != null) {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < mouseDistance) {
+                        const forceDirectionX = dx / distance;
+                        const forceDirectionY = dy / distance;
+                        const force = (mouseDistance - distance) / mouseDistance;
+                        const directionX = forceDirectionX * force * 0.5;
+                        const directionY = forceDirectionY * force * 0.5;
+                        
+                        this.x -= directionX;
+                        this.y -= directionY;
+                    }
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.baseColor + '0.5)';
+                ctx.fill();
+            }
+        }
+
+        // Initialize particles
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+        initParticles();
+
+        // Animation Loop
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            
+            // Update and draw particles
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            // Draw connections
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i; j < particles.length; j++) {
+                    let dx = particles[i].x - particles[j].x;
+                    let dy = particles[i].y - particles[j].y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < connectionDistance) {
+                        ctx.beginPath();
+                        let opacity = 1 - (distance / connectionDistance);
+                        ctx.strokeStyle = 'rgba(59, 130, 246,' + (opacity * 0.2) + ')';
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            
+            // Orb Glow in center
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 200);
+            gradient.addColorStop(0, 'rgba(59, 130, 246, 0.1)');
+            gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0,0, width, height);
+
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        /* 
+         * =========================================
+         * INTERSECTION OBSERVER (SCROLL ANIMATIONS)
+         * =========================================
+         */
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    
+                    // Specific logic for timeline dots
+                    if (entry.target.querySelector('.timeline-dot')) {
+                        entry.target.querySelector('.timeline-dot').style.opacity = 1;
+                    }
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => {
+            observer.observe(el);
+        });
+
+        /* 
+         * =========================================
+         * UI INTERACTIONS
+         * =========================================
+         */
+        
+        // Navbar Scroll Effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(5, 5, 5, 0.9)';
+                navbar.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
+            } else {
+                navbar.style.background = 'rgba(5, 5, 5, 0.7)';
+                navbar.style.borderBottom = '1px solid transparent';
+            }
+        });
+
+        // Form Submission
+        const form = document.getElementById('waitlistForm');
+        const toast = document.getElementById('toast');
+        
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btn = form.querySelector('.submit-btn');
+            const originalText = btn.innerText;
+            
+            // Simulate loading state
+            btn.innerText = 'Joining...';
+            btn.style.opacity = '0.7';
+            
+            setTimeout(() => {
+                // Reset button
+                btn.innerText = originalText;
+                btn.style.opacity = '1';
+                form.reset();
+                
+                // Show toast
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }, 1000);
+        });
+
     </script>
 </body>
-
 </html>
-
-
