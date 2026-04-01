@@ -1,666 +1,748 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WISPA — A Voice-First Companion</title>
-    <style>
-        /* 
-         * DESIGN SYSTEM & VARIABLES 
-         * Focusing on "Quiet Luxury" typography and spacing.
-         */
-        :root {
-            --bg-color: #0a0a0a;
-            --text-main: #f5f5f7;
-            --text-muted: #86868b;
-            --accent-glow: rgba(255, 255, 255, 0.15);
-            --wispa-gradient: linear-gradient(135deg, #e0e0e0 0%, #a1a1aa 100%);
-            --font-display: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            --font-body: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
-            
-            /* Easing curves for that "Apple" feel */
-            --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
-            --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wispa — Your Voice, Amplified</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ws: {
+              bg: '#FAFAF8', card: '#FFFFFF', dark: '#1A1A1A',
+              text: '#1A1A1A', sub: '#6B6B76', muted: '#9CA3AF',
+              border: '#E5E5E7', warm: '#F3F3F0', footer: '#F7F7F8',
+              dot: '#D1D1D6', light: '#F9FAFB'
+            }
+          },
+          fontFamily: { inter: ['Inter', 'sans-serif'] }
         }
+      }
+    }
+  </script>
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',sans-serif;background:#FAFAF8;color:#1A1A1A;overflow-x:hidden}
+    ::selection{background:#1A1A1A;color:#FAFAF8}
+    ::-webkit-scrollbar{width:3px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:#D1D1D6;border-radius:2px}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    /* Preloader */
+    #preloader{position:fixed;inset:0;z-index:9999;background:#FAFAF8;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s ease,visibility .6s ease}
+    #preloader.hide{opacity:0;visibility:hidden;pointer-events:none}
+    .pre-ring{width:64px;height:64px;border-radius:50%;border:1.5px solid #E5E5E7;position:relative;animation:pre-spin 1.8s linear infinite}
+    .pre-ring::before{content:'';position:absolute;top:-1px;left:50%;width:6px;height:6px;border-radius:50%;background:#1A1A1A;transform:translateX(-50%)}
+    .pre-ring::after{content:'';position:absolute;inset:10px;border-radius:50%;border:1px dashed #D1D1D6;animation:pre-spin 3s linear infinite reverse}
+    @keyframes pre-spin{to{transform:rotate(360deg)}}
+    .pre-text{margin-top:24px;opacity:0;animation:pre-fade .8s ease .4s forwards}
+    .pre-sub{margin-top:6px;opacity:0;animation:pre-fade .8s ease .8s forwards}
+    @keyframes pre-fade{to{opacity:1}}
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: var(--font-body);
-            overflow-x: hidden;
-            /* Smooth scrolling for the whole page experience */
-            scroll-behavior: smooth; 
-        }
+    /* Scroll Reveal */
+    .sr{opacity:0;transform:translateY(20px);transition:opacity .65s cubic-bezier(.16,1,.3,1),transform .65s cubic-bezier(.16,1,.3,1)}
+    .sr.in{opacity:1;transform:translateY(0)}
+    .d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}.d5{transition-delay:.4s}
 
-        /* 
-         * TYPOGRAPHY 
-         */
-        h1, h2, h3 {
-            font-family: var(--font-display);
-            font-weight: 500;
-            letter-spacing: -0.02em;
-        }
+    /* Device */
+    .device{width:200px;height:200px;border-radius:50%;position:relative;background:radial-gradient(circle at 38% 32%,#f0f0ee,#d8d8d4 40%,#b8b8b4 70%,#a0a09c 100%);box-shadow:0 2px 4px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.07),0 20px 60px rgba(0,0,0,.05),inset 0 2px 4px rgba(255,255,255,.6),inset 0 -4px 12px rgba(0,0,0,.07);transform-style:preserve-3d}
+    .device::before{content:'';position:absolute;top:10%;left:14%;width:40%;height:25%;background:radial-gradient(ellipse,rgba(255,255,255,.45),transparent 70%);border-radius:50%;transform:rotate(-15deg)}
+    .device::after{content:'';position:absolute;inset:18px;border-radius:50%;border:1px solid rgba(0,0,0,.04)}
+    .device .led{position:absolute;bottom:30%;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,.4);animation:led-p 3s ease-in-out infinite}
+    .device .mic{position:absolute;top:32%;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:rgba(0,0,0,.1)}
+    @keyframes led-p{0%,100%{opacity:1}50%{opacity:.35}}
+    @keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+    .dev-sm{width:120px;height:120px}.dev-sm::after{inset:12px}
+    .dev-lg{width:280px;height:280px}.dev-lg::after{inset:24px}
+    .dev-outline{border-radius:50%;border:1.5px solid #D1D1D6;background:transparent}
 
-        p {
-            font-size: 1.25rem;
-            line-height: 1.6;
-            color: var(--text-muted);
-            font-weight: 300;
-            max-width: 600px;
-            margin: 0 auto;
-        }
+    .lanyard{position:absolute;top:-36px;left:50%;transform:translateX(-50%);width:1.5px;height:36px;background:linear-gradient(to bottom,transparent,#9CA3AF)}
+    .lanyard::after{content:'';position:absolute;top:-7px;left:50%;transform:translateX(-50%);width:14px;height:14px;border-radius:50%;border:1.5px solid #D1D1D6;background:#FAFAF8}
 
-        /* 
-         * LAYOUT UTILITIES 
-         */
-        .scroll-phase {
-            min-height: 100vh;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            padding: 2rem;
-            /* Sticky positioning logic handled by specific phases */
-        }
+    /* Buttons */
+    .btn-primary{display:inline-flex;align-items:center;justify-content:center;padding:0 28px;height:46px;border-radius:9999px;background:#1A1A1A;color:#fff;font-size:13px;font-weight:600;letter-spacing:-.01em;transition:transform .25s ease,box-shadow .25s ease,background .25s ease;border:none;cursor:pointer}
+    .btn-primary:hover{transform:scale(1.03);box-shadow:0 4px 20px rgba(0,0,0,.12);background:#000}
+    .btn-primary:active{transform:scale(.98)}
+    .btn-ghost{display:inline-flex;align-items:center;justify-content:center;padding:0 28px;height:46px;border-radius:9999px;background:transparent;color:#1A1A1A;font-size:13px;font-weight:600;letter-spacing:-.01em;border:1px solid #E5E5E7;transition:transform .25s ease,box-shadow .25s ease,background .25s ease,border-color .25s ease;cursor:pointer}
+    .btn-ghost:hover{transform:scale(1.03);box-shadow:0 4px 20px rgba(0,0,0,.06);background:#F3F3F0;border-color:#D1D1D6}
+    .btn-ghost:active{transform:scale(.98)}
 
-        /* 
-         * FIXED BACKGROUND ELEMENTS 
-         * These elements persist or morph between phases
-         */
-        #canvas-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            pointer-events: none;
-            transition: opacity 2s ease;
-        }
+    /* Nav link underline */
+    .nav-l{position:relative;color:#6B6B76;transition:color .25s ease}
+    .nav-l::after{content:'';position:absolute;bottom:-3px;left:0;width:0;height:1px;background:#1A1A1A;transition:width .3s ease}
+    .nav-l:hover{color:#1A1A1A}
+    .nav-l:hover::after{width:100%}
 
-        .wispa-product {
-            width: 120px;
-            height: 180px;
-            background: var(--wispa-gradient);
-            border-radius: 40px;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.8);
-            z-index: 0;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            opacity: 0; /* Hidden initially */
-            transition: all 1.5s var(--ease-out-expo);
-            filter: blur(20px);
-        }
+    /* Spec rows */
+    .spec-r{display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid #F3F3F0}
+    .spec-r:last-child{border-bottom:none}
 
-        .wispa-product::after {
-            /* Status light */
-            content: '';
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 6px;
-            height: 6px;
-            background: white;
-            border-radius: 50%;
-            opacity: 0.5;
-            box-shadow: 0 0 10px white;
-        }
+    /* Use case scroll */
+    .uc-track{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:12px 0}
+    .uc-track::-webkit-scrollbar{height:0}
+    .uc-card{scroll-snap-align:start;flex:0 0 272px;border-radius:16px;border:1px solid #E5E5E7;overflow:hidden;transition:transform .4s ease,box-shadow .4s ease}
+    .uc-card:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,.06)}
 
-        /* 
-         * ANIMATION UTILITIES 
-         */
-        .fade-in-up {
-            opacity: 0;
-            transform: translateY(40px);
-            transition: opacity 1.5s ease, transform 1.5s var(--ease-out-expo);
-        }
+    /* Feature card */
+    .feat-card{border-radius:16px;border:1px solid #E5E5E7;padding:28px;transition:transform .35s ease,box-shadow .35s ease,background .35s ease;background:#fff}
+    .feat-card:hover{transform:translateY(-3px);box-shadow:0 6px 24px rgba(0,0,0,.05);background:#FDFDFC}
 
-        .visible .fade-in-up {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    /* Founder card */
+    .founder-card{transition:transform .35s ease,box-shadow .35s ease}
+    .founder-card:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.06)}
 
-        .blur-text {
-            filter: blur(10px);
-            opacity: 0;
-            transition: all 1s ease;
-        }
+    /* Roadmap */
+    .rm-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+    .rm-line{width:1px;flex-shrink:0;background:#E5E5E7}
 
-        .visible .blur-text {
-            filter: blur(0);
-            opacity: 1;
-        }
-
-        /* 
-         * PHASE 1: ARRIVAL 
-         */
-        #phase-1 {
-            text-align: center;
-        }
-
-        #phase-1 h1 {
-            font-size: clamp(3rem, 8vw, 6rem);
-            margin-bottom: 1rem;
-            background: linear-gradient(to bottom, #fff, #888);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            opacity: 0;
-            animation: breathe 4s ease-in-out infinite alternate;
-        }
-
-        #phase-1 p {
-            opacity: 0;
-            animation: fadeSlow 2s ease forwards 0.5s;
-        }
-
-        @keyframes breathe {
-            0% { transform: scale(0.98); opacity: 0.9; }
-            100% { transform: scale(1.02); opacity: 1; }
-        }
-        @keyframes fadeSlow {
-            to { opacity: 0.8; }
-        }
-
-        /* 
-         * PHASE 2: AWARENESS 
-         * Noise texture overlay
-         */
-        .noise-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 10;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.1'/%3E%3C/svg%3E");
-            transition: opacity 1s ease;
-        }
-
-        /* 
-         * PHASE 3: REVELATION 
-         * Wispa Product appears
-         */
-        
-        /* 
-         * PHASE 4: FEELING 
-         * Voice waves visualization
-         */
-        .voice-wave-container {
-            display: flex;
-            gap: 6px;
-            height: 40px;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 2rem;
-            opacity: 0;
-            transition: opacity 1s ease;
-        }
-        
-        .bar {
-            width: 4px;
-            background: #fff;
-            border-radius: 2px;
-            animation: sound 1.2s ease-in-out infinite;
-        }
-        .bar:nth-child(1) { height: 10px; animation-delay: 0.0s; }
-        .bar:nth-child(2) { height: 20px; animation-delay: 0.1s; }
-        .bar:nth-child(3) { height: 30px; animation-delay: 0.2s; }
-        .bar:nth-child(4) { height: 20px; animation-delay: 0.1s; }
-        .bar:nth-child(5) { height: 10px; animation-delay: 0.0s; }
-
-        @keyframes sound {
-            0%, 100% { transform: scaleY(1); opacity: 0.5; }
-            50% { transform: scaleY(2); opacity: 1; }
-        }
-
-        /* 
-         * PHASE 5: INTELLIGENCE 
-         * Cards layout
-         */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            width: 100%;
-            max-width: 1000px;
-            padding: 2rem;
-        }
-
-        .feature-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 2rem;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            transition: transform 0.3s ease, background 0.3s ease;
-            cursor: default;
-        }
-
-        .feature-card:hover {
-            background: rgba(255, 255, 255, 0.07);
-            transform: translateY(-5px);
-        }
-
-        .feature-icon {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            display: block;
-        }
-
-        /* 
-         * PHASE 6: SELF-IDENTIFICATION 
-         * Horizontal scroll or snap logic
-         */
-        .use-cases {
-            display: flex;
-            flex-direction: column;
-            gap: 4rem;
-            width: 100%;
-            max-width: 700px;
-        }
-
-        .use-case {
-            border-left: 1px solid rgba(255, 255, 255, 0.1);
-            padding-left: 2rem;
-            opacity: 0.4;
-            transition: opacity 0.5s ease;
-            position: relative;
-        }
-
-        .use-case.active {
-            opacity: 1;
-            border-left: 1px solid rgba(255, 255, 255, 0.5);
-        }
-
-        .use-case h3 {
-            margin-bottom: 0.5rem;
-            color: #fff;
-        }
-
-        /* 
-         * PHASE 7: FUTURE 
-         * Background opens up
-         */
-        #phase-7 {
-            background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
-        }
-        
-        .horizon-line {
-            width: 100%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            margin: 3rem 0;
-        }
-
-        /* 
-         * PHASE 8: COMMITMENT 
-         * Magnetic Button
-         */
-        .cta-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        .wispa-btn {
-            padding: 1rem 3rem;
-            font-size: 1.1rem;
-            border-radius: 50px;
-            background: #fff;
-            color: #000;
-            text-decoration: none;
-            font-weight: 500;
-            transition: transform 0.3s var(--ease-out-expo), box-shadow 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .wispa-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
-        }
-
-        /* Progress Bar */
-        .progress-line {
-            position: fixed;
-            right: 30px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 1px;
-            height: 100px;
-            background: rgba(255,255,255,0.1);
-            z-index: 100;
-        }
-        
-        .progress-indicator {
-            position: absolute;
-            top: 0;
-            left: -1px;
-            width: 3px;
-            height: 20px;
-            background: #fff;
-            border-radius: 2px;
-            transition: top 0.1s linear;
-        }
-
-        /* Cursor follower */
-        .custom-cursor {
-            width: 20px;
-            height: 20px;
-            border: 1px solid rgba(255,255,255,0.5);
-            border-radius: 50%;
-            position: fixed;
-            pointer-events: none;
-            z-index: 9999;
-            transform: translate(-50%, -50%);
-            transition: width 0.3s, height 0.3s, background 0.3s;
-        }
-        
-        .custom-cursor.hovered {
-            width: 50px;
-            height: 50px;
-            background: rgba(255,255,255,0.1);
-            border-color: transparent;
-        }
-
-        /* Helper for sticky center object */
-        .sticky-wrapper {
-            height: 300vh; /* Make it tall to allow scrolling past while object stays */
-            position: relative;
-        }
-        
-        .sticky-viewport {
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-
-    </style>
+    @media(max-width:768px){
+      .device{width:160px;height:160px}
+      .dev-lg{width:220px;height:220px}
+    }
+  </style>
 </head>
 <body>
 
-    <!-- Noise Texture Layer -->
-    <div class="noise-overlay" id="noise-layer"></div>
+<!-- ===== PRELOADER ===== -->
+<div id="preloader">
+  <div class="pre-ring"></div>
+  <p class="pre-text text-sm font-semibold tracking-tight text-ws-text">WISPA AI</p>
+  <p class="pre-sub text-[11px] text-ws-muted tracking-wide">Loading Intelligence…</p>
+</div>
 
-    <!-- Custom Cursor -->
-    <div class="custom-cursor" id="cursor"></div>
-
-    <!-- Scroll Progress Indicator -->
-    <div class="progress-line">
-        <div class="progress-indicator" id="progress-bar"></div>
+<!-- ===== NAVBAR ===== -->
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-500" style="transform:translateY(-100%)">
+  <div class="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+    <a href="#hero" class="flex items-center gap-2.5 flex-shrink-0">
+      <div class="w-6 h-6 rounded-full bg-ws-dark flex items-center justify-center">
+        <div class="w-2 h-2 rounded-full bg-ws-bg"></div>
+      </div>
+      <span class="font-semibold text-sm tracking-tight">Wispa</span>
+    </a>
+    <div class="hidden md:flex items-center gap-7">
+      <a href="#hero" class="nav-l text-xs font-medium">Home</a>
+      <a href="#solution" class="nav-l text-xs font-medium">Product</a>
+      <a href="#features" class="nav-l text-xs font-medium">Features</a>
+      <a href="#how" class="nav-l text-xs font-medium">How it Works</a>
+      <a href="#pricing" class="nav-l text-xs font-medium">Pricing</a>
+      <a href="#order" class="nav-l text-xs font-medium">Contact</a>
     </div>
+    <div class="flex items-center gap-3">
+      <a href="#order" class="btn-primary text-xs hidden sm:inline-flex" style="padding:0 20px;height:36px">Pre-Order</a>
+      <button id="mob-btn" class="md:hidden text-ws-text p-1" aria-label="Menu">
+        <span class="iconify" data-icon="lucide:menu" data-width="20"></span>
+      </button>
+    </div>
+  </div>
+  <div id="mob-menu" class="md:hidden hidden bg-white border-t border-ws-border shadow-lg mx-4 rounded-b-2xl p-5">
+    <div class="flex flex-col gap-4">
+      <a href="#hero" class="text-sm text-ws-sub hover:text-ws-text transition-colors mob-link">Home</a>
+      <a href="#solution" class="text-sm text-ws-sub hover:text-ws-text transition-colors mob-link">Product</a>
+      <a href="#features" class="text-sm text-ws-sub hover:text-ws-text transition-colors mob-link">Features</a>
+      <a href="#how" class="text-sm text-ws-sub hover:text-ws-text transition-colors mob-link">How it Works</a>
+      <a href="#pricing" class="text-sm text-ws-sub hover:text-ws-text transition-colors mob-link">Pricing</a>
+      <a href="#order" class="text-sm text-ws-sub hover:text-ws-text transition-colors mob-link">Contact</a>
+      <a href="#order" class="btn-primary text-xs text-center mt-1">Pre-Order</a>
+    </div>
+  </div>
+</nav>
 
-    <!-- Persistent Wispa Product (The "Star" of the show) -->
-    <div class="wispa-product" id="wispa-hero"></div>
-
-    <main>
-        <!-- PHASE 1: ARRIVAL -->
-        <section class="scroll-phase" id="phase-1">
-            <h1 class="fade-in-up">Wispa</h1>
-            <p class="fade-in-up">A voice-first companion for life.</p>
-        </section>
-
-        <!-- PHASE 2: AWARENESS -->
-        <section class="scroll-phase" id="phase-2">
-            <h2 class="blur-text">The Problem</h2>
-            <br>
-            <p class="blur-text">We touch our phones hundreds of times a day.<br>Most of it is unnecessary.</p>
-        </section>
-
-        <!-- PHASE 3: REVELATION (Sticky Container) -->
-        <div class="sticky-wrapper">
-            <div class="sticky-viewport">
-                <!-- Content scrolls over/around the sticky product -->
-                <div style="height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: none;">
-                    <h2 style="text-align: center; opacity: 0.9; text-shadow: 0 10px 30px black;">Not a screen.</h2>
-                </div>
-            </div>
+<!-- ===== HERO ===== -->
+<section id="hero" class="min-h-screen flex items-center justify-center pt-14">
+  <div class="max-w-5xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+    <div class="order-2 md:order-1">
+      <p class="text-[11px] font-medium text-ws-muted uppercase tracking-[.14em] mb-5 sr">Introducing Wispa</p>
+      <h1 class="text-4xl md:text-[52px] lg:text-[60px] font-bold tracking-tight leading-[1.05] mb-6 sr d1">
+        Your Voice,<br><span class="text-ws-sub font-normal">Amplified.</span>
+      </h1>
+      <p class="text-[15px] text-ws-sub leading-relaxed mb-10 max-w-md sr d2">
+        A 4cm wearable that listens, thinks, and responds. Clip it, speak, and let AI handle the rest — no screen needed.
+      </p>
+      <div class="flex flex-wrap gap-3 sr d3">
+        <a href="#order" class="btn-primary">Pre-Order — $49</a>
+        <a href="#how" class="btn-ghost">See How It Works</a>
+      </div>
+    </div>
+    <div class="order-1 md:order-2 flex justify-center sr d2">
+      <div class="relative" style="animation:fl 5s ease-in-out infinite">
+        <div class="lanyard"></div>
+        <div class="device dev-lg" id="hero-dev">
+          <div class="mic"></div>
+          <div class="led"></div>
         </div>
+        <p class="text-center text-[10px] text-ws-muted mt-5 font-medium">4cm diameter · 18g</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-        <!-- PHASE 4: FEELING -->
-        <section class="scroll-phase" id="phase-4">
-            <div class="voice-wave-container" id="voice-waves">
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
+<!-- ===== PROBLEM ===== -->
+<section class="py-24 md:py-32">
+  <div class="max-w-4xl mx-auto px-6 text-center">
+    <p class="text-[11px] font-medium text-ws-muted uppercase tracking-[.14em] mb-5 sr">The Problem</p>
+    <h2 class="text-3xl md:text-4xl font-bold tracking-tight mb-5 sr d1">
+      We check our phones <span class="text-ws-sub font-normal">152 times a day.</span>
+    </h2>
+    <p class="text-ws-sub text-[15px] max-w-lg mx-auto leading-relaxed mb-14 sr d2">
+      For what? A notification. A quick reply. A reminder. Things that should take seconds but steal minutes of focus.
+    </p>
+    <div class="grid grid-cols-3 gap-6 max-w-lg mx-auto sr d3">
+      <div class="text-center">
+        <p class="text-3xl md:text-4xl font-bold tracking-tight">4.8<span class="text-ws-muted text-base">h</span></p>
+        <p class="text-[11px] text-ws-muted mt-1.5 leading-tight">Average daily<br>screen time</p>
+      </div>
+      <div class="text-center">
+        <p class="text-3xl md:text-4xl font-bold tracking-tight">152</p>
+        <p class="text-[11px] text-ws-muted mt-1.5 leading-tight">Times picking<br>up phone</p>
+      </div>
+      <div class="text-center">
+        <p class="text-3xl md:text-4xl font-bold tracking-tight">67<span class="text-ws-muted text-base">%</span></p>
+        <p class="text-[11px] text-ws-muted mt-1.5 leading-tight">Feel distracted<br>daily</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SOLUTION ===== -->
+<section id="solution" class="py-24 md:py-32 bg-white">
+  <div class="max-w-5xl mx-auto px-6 grid md:grid-cols-2 gap-14 items-center">
+    <div class="flex justify-center sr">
+      <div class="device" style="animation:fl 6s ease-in-out infinite">
+        <div class="mic"></div><div class="led"></div>
+      </div>
+    </div>
+    <div>
+      <p class="text-[11px] font-medium text-ws-muted uppercase tracking-[.14em] mb-4 sr">The Solution</p>
+      <h2 class="text-3xl md:text-4xl font-bold tracking-tight mb-5 sr d1">Meet Wispa.</h2>
+      <p class="text-ws-sub text-[15px] leading-relaxed mb-8 sr d2">
+        A small, beautiful circle you wear around your neck. It hears your voice, connects to AI, and speaks back — so you never need to reach for your phone.
+      </p>
+      <div class="space-y-4 sr d3">
+        <div class="flex items-start gap-3.5">
+          <div class="w-8 h-8 rounded-full bg-ws-warm flex items-center justify-center flex-shrink-0 mt-0.5">
+            <span class="iconify text-ws-sub" data-icon="lucide:mic" data-width="14"></span>
+          </div>
+          <div>
+            <p class="text-sm font-semibold">Whisper to Speak</p>
+            <p class="text-[13px] text-ws-muted mt-0.5 leading-relaxed">Advanced microphone picks up even quiet voices.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3.5">
+          <div class="w-8 h-8 rounded-full bg-ws-warm flex items-center justify-center flex-shrink-0 mt-0.5">
+            <span class="iconify text-ws-sub" data-icon="lucide:volume-2" data-width="14"></span>
+          </div>
+          <div>
+            <p class="text-sm font-semibold">Hear the Response</p>
+            <p class="text-[13px] text-ws-muted mt-0.5 leading-relaxed">Built-in speaker delivers clear AI answers.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3.5">
+          <div class="w-8 h-8 rounded-full bg-ws-warm flex items-center justify-center flex-shrink-0 mt-0.5">
+            <span class="iconify text-ws-sub" data-icon="lucide:circle-dot" data-width="14"></span>
+          </div>
+          <div>
+            <p class="text-sm font-semibold">LED Knows the State</p>
+            <p class="text-[13px] text-ws-muted mt-0.5 leading-relaxed">Green LED indicator shows listening, thinking, or responding.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section id="how" class="py-24 md:py-32">
+  <div class="max-w-4xl mx-auto px-6">
+    <div class="text-center mb-14">
+      <p class="text-[11px] font-medium text-ws-muted uppercase tracking-[.14em] mb-4 sr">How It Works</p>
+      <h2 class="text-3xl md:text-4xl font-bold tracking-tight sr d1">Three Steps. Zero Screens.</h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-8 md:gap-6">
+      <div class="text-center sr">
+        <div class="w-12 h-12 rounded-full bg-ws-warm flex items-center justify-center mx-auto mb-5">
+          <span class="text-xs font-bold text-ws-sub">01</span>
+        </div>
+        <h3 class="text-[15px] font-semibold mb-2">You Speak</h3>
+        <p class="text-[13px] text-ws-muted leading-relaxed">Whisper a question, command, or request. The microphone captures everything.</p>
+      </div>
+      <div class="text-center sr d1">
+        <div class="w-12 h-12 rounded-full bg-ws-warm flex items-center justify-center mx-auto mb-5">
+          <span class="text-xs font-bold text-ws-sub">02</span>
+        </div>
+        <h3 class="text-[15px] font-semibold mb-2">AI Thinks</h3>
+        <p class="text-[13px] text-ws-muted leading-relaxed">Wispa sends your voice to cloud AI via Bluetooth. The processor handles the rest.</p>
+      </div>
+      <div class="text-center sr d2">
+        <div class="w-12 h-12 rounded-full bg-ws-warm flex items-center justify-center mx-auto mb-5">
+          <span class="text-xs font-bold text-ws-sub">03</span>
+        </div>
+        <h3 class="text-[15px] font-semibold mb-2">You Hear Back</h3>
+        <p class="text-[13px] text-ws-muted leading-relaxed">The speaker delivers a clear, natural response. Under a second. Hands-free.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEATURES ===== -->
+<section id="features" class="py-24 md:py-32 bg-white">
+  <div class="max-w-5xl mx-auto px-6">
+    <div class="text-center mb-14">
+      <p class="text-[11px] font-medium text-ws-muted uppercase tracking-[.14em] mb-4 sr">Features</p>
+      <h2 class="text-3xl md:text-4xl font-bold tracking-tight sr d1">Small Device. Big Capability.</h2>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="feat-card sr">
+        <span class="iconify text-ws-text mb-4 block" data-icon="lucide:mic" data-width="20"></span>
+        <h3 class="text-sm font-semibold mb-1.5">Voice Activation</h3>
+        <p class="text-[13px] text-ws-muted leading-relaxed">Whisper-level detection with dual MEMS microphones and noise isolation.</p>
+      </div>
+      <div class="feat-card sr d1">
+        <span class="iconify text-ws-text mb-4 block" data-icon="lucide:volume-2" data-width="20"></span>
+        <h3 class="text-sm font-semibold mb-1.5">Built-in Speaker</h3>
+        <p class="text-[13px] text-ws-muted leading-relaxed">Clear audio output for AI responses, notifications, and calls.</p>
+      </div>
+      <div class="feat-card sr d2">
+        <span class="iconify text-ws-text mb-4 block" data-icon="lucide:brain" data-width="20"></span>
+        <h3 class="text-sm font-semibold mb-1.5">AI Intelligence</h3>
+        <p class="text-[13px] text-ws-muted leading-relaxed">Powered by multiple LLMs for knowledge, translation, and reasoning.</p>
+      </div>
+      <div class="feat-card sr d1">
+        <span class="iconify text-ws-text mb-4 block" data-icon="lucide:bell" data-width="20"></span>
+        <h3 class="text-sm font-semibold mb-1.5">Smart Notifications</h3>
+        <p class="text-[13px] text-ws-muted leading-relaxed">AI filters notifications. Only important ones reach your ear.</p>
+      </div>
+      <div class="feat-card sr d2">
+        <span class="iconify text-ws-text mb-4 block" data-icon="lucide:languages" data-width="20"></span>
+        <h3 class="text-sm font-semibold mb-1.5">40+ Languages</h3>
+        <p class="text-[13px] text-ws-muted leading-relaxed">Real-time translation. Speak naturally, Wispa adapts instantly.</p>
+      </div>
+      <div class="feat-card sr d3">
+        <span class="iconify text-ws-text mb-4 block" data-icon="lucide:battery-full" data-width="20"></span>
+        <h3 class="text-sm font-semibold mb-1.5">All-Day Battery</h3>
+        <p class="text-[13px] text-ws-muted leading-relaxed">Compact battery delivers up to 24 hours of continuous use.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PRODUCT BREAKDOWN ===== -->
+<section id="specs" class="py-24 md:py-32">
+  <div class="max-w-5xl mx-auto px-6">
+    <div class="text-center mb-14">
+      <p class="text-[11px] font-medium text-ws-muted uppercase tracking-[.14em] mb-4 sr">Inside Wispa</p>
+      <h2 class="text-3xl md:text-4xl font-bold tracking-tight sr d1">Every Part, Purposeful.</h2>
+    </div>
+    <div class="grid md:grid-cols-2 gap-12 items-center">
+      <div class="sr flex justify-center">
+        <div class="relative w-64 h-72 flex items-center justify-center">
+          <div class="absolute top-0">
+            <div class="dev-outline mx-auto" style="width:180px;height:180px">
+              <span class="absolute -right-[72px] top-1/2 -translate-y-1/2 text-[10px] text-ws-muted font-medium whitespace-nowrap leading-tight">Outer Shell<br><span class="text-ws-dot">Glossy Finish</span></span>
+              <div class="absolute -left-1 top-1/2 -translate-y-1/2 w-1.5 h-px bg-ws-dot"></div>
             </div>
-            <h2 class="fade-in-up">Say it once.</h2>
-            <p class="fade-in-up">Wispa remembers. No taps. No screens. No friction.</p>
-        </section>
-
-        <!-- PHASE 5: INTELLIGENCE -->
-        <section class="scroll-phase" id="phase-5">
-            <div class="features-grid">
-                <div class="feature-card fade-in-up">
-                    <span class="feature-icon">🧠</span>
-                    <h3>Context Aware</h3>
-                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">Understands where you are and what you're doing.</p>
-                </div>
-                <div class="feature-card fade-in-up" style="transition-delay: 0.1s">
-                    <span class="feature-icon">🔒</span>
-                    <h3>Privacy First</h3>
-                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">On-device intelligence means your data stays yours.</p>
-                </div>
-                <div class="feature-card fade-in-up" style="transition-delay: 0.2s">
-                    <span class="feature-icon">⚡</span>
-                    <h3>Instant Recall</h3>
-                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">Learns your routines to predict your needs.</p>
-                </div>
+          </div>
+          <div class="absolute" style="top:46px">
+            <div class="dev-outline mx-auto" style="width:140px;height:140px">
+              <span class="absolute -left-[52px] top-1/2 -translate-y-1/2 text-[10px] text-ws-muted font-medium whitespace-nowrap text-right">LED<br>Indicator</span>
+              <div class="absolute -right-1 top-1/2 -translate-y-1/2 w-1.5 h-px bg-ws-dot"></div>
             </div>
-        </section>
-
-        <!-- PHASE 6: SELF-IDENTIFICATION -->
-        <section class="scroll-phase" id="phase-6">
-            <div class="use-cases">
-                <div class="use-case active">
-                    <h3>The Student</h3>
-                    <p>"Remind me to revise Biology at 7pm."</p>
-                </div>
-                <div class="use-case">
-                    <h3>The Pro</h3>
-                    <p>"Summarize my day and email the team."</p>
-                </div>
-                <div class="use-case">
-                    <h3>The Grandparent</h3>
-                    <p>"Call my daughter if I don't take my medicine."</p>
-                </div>
+          </div>
+          <div class="absolute" style="top:88px">
+            <div class="dev-outline mx-auto" style="width:100px;height:100px">
+              <span class="absolute -right-[52px] top-1/2 -translate-y-1/2 text-[10px] text-ws-muted font-medium whitespace-nowrap">Mic +<br>Speaker</span>
+              <div class="absolute -left-1 top-1/2 -translate-y-1/2 w-1.5 h-px bg-ws-dot"></div>
             </div>
-        </section>
-
-        <!-- PHASE 7: FUTURE -->
-        <section class="scroll-phase" id="phase-7">
-            <h2 class="fade-in-up">Tomorrow, it understands.</h2>
-            <div class="horizon-line fade-in-up"></div>
-            <p class="fade-in-up">Today, Wispa listens.</p>
-        </section>
-
-        <!-- PHASE 8: COMMITMENT -->
-        <section class="scroll-phase" id="phase-8">
-            <div class="cta-container fade-in-up">
-                <h2>Join the Wispa journey</h2>
-                <p>No noise. Just intelligence.</p>
-                <a href="#" class="wispa-btn magnetic">Pre-order Now</a>
+          </div>
+          <div class="absolute" style="top:122px">
+            <div class="dev-outline mx-auto" style="width:64px;height:64px">
+              <span class="absolute -left-[36px] top-1/2 -translate-y-1/2 text-[10px] text-ws-muted font-medium whitespace-nowrap text-right">Chip</span>
+              <div class="absolute -right-1 top-1/2 -translate-y-1/2 w-1.5 h-px bg-ws-dot"></div>
             </div>
-        </section>
-    </main>
+          </div>
+          <div class="absolute" style="top:152px">
+            <div class="w-7 h-7 rounded-full border border-ws-dot mx-auto"></div>
+            <span class="absolute -right-[44px] top-1/2 -translate-y-1/2 text-[10px] text-ws-muted font-medium whitespace-nowrap">Battery</span>
+          </div>
+          <div class="absolute left-1/2 top-0 bottom-6 w-px border-l border-dashed border-ws-dot -translate-x-1/2"></div>
+        </div>
+      </div>
+      <div class="sr d2">
+        <div class="spec-r"><span class="text-sm text-ws-sub">Diameter</span><span class="text-sm font-medium">4 cm</span></div>
+        <div class="spec-r"><span class="text-sm text-ws-sub">Weight</span><span class="text-sm font-medium">18 g</span></div>
+        <div class="spec-r"><span class="text-sm text-ws-sub">Microphone</span><span class="text-sm font-medium">Dual MEMS</span></div>
+        <div class="spec-r"><span class="text-sm text-ws-sub">Speaker</span><span class="text-sm font-medium">Built-in mono</span></div>
+        <div class="spec-r"><span class="text-sm text-ws-sub">LED Indicator</span><span class="text-sm font-medium">Status RGB</span></div>
+        <div class="spec-r"><span class="text-sm text-ws-sub">Processor</span><span class="text-sm font-medium">AI SoC chip</span></div>
+        <div class="spec-r"><span class="text-sm text-ws-sub">Battery</span><span class="text-sm font-medium">24 hours</span></div>
+        <div class="spec-r"><span class="text-sm text-ws-sub">Connectivity</span><span class="text-sm font-medium">Bluetooth 5.3</span></div>
+        <div class="spec-r"><span class="text-sm text-ws-sub">Finish</span><span class="text-sm font-medium">Glossy shell</span></div>
+        <div class="spec-r"><span class="text-sm text-ws-sub">Water Resistance</span><span class="text-sm font-medium">IPX4</span></div>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <script>
-        // --- 1. SETUP OBSERVERS ---
-        // We use IntersectionObserver to trigger animations when phases enter the viewport
-        
-        const observerOptions = {
-            threshold: 0.4, // Trigger when 40% of the section is visible
-            rootMargin: "0px"
-        };
+<!-- ===== USE CASES ===== -->
+<section class="py-24 md:py-32 bg-white">
+  <div class="max-w-5xl mx-auto px-6">
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between mb-8 gap-3">
+      <div>
+        <p class="text-[11px] font-medium text-ws-muted uppercase tracking-[.14em] mb-4 sr">Use Cases</p>
+        <h2 class="text-3xl md:text-4xl font-bold tracking-tight sr d1">Fits Your Life.</h2>
+      </div>
+      <p class="text-[11px] text-ws-muted sr d2">Swipe to explore →</p>
+    </div>
+    <div class="uc-track -mx-6 px-6 sr d2">
+      <div class="uc-card">
+        <div class="h-32 bg-ws-warm flex items-center justify-center"><span class="iconify text-ws-dot" data-icon="lucide:graduation-cap" data-width="32"></span></div>
+        <div class="p-5">
+          <p class="text-[10px] font-semibold uppercase tracking-widest text-ws-muted mb-1">Student</p>
+          <h3 class="text-sm font-semibold mb-1">"Summarize this lecture"</h3>
+          <p class="text-[12px] text-ws-muted leading-relaxed">Record and get AI summaries, flashcards, and study guides — hands-free.</p>
+        </div>
+      </div>
+      <div class="uc-card">
+        <div class="h-32 bg-ws-warm flex items-center justify-center"><span class="iconify text-ws-dot" data-icon="lucide:briefcase" data-width="32"></span></div>
+        <div class="p-5">
+          <p class="text-[10px] font-semibold uppercase tracking-widest text-ws-muted mb-1">Work</p>
+          <h3 class="text-sm font-semibold mb-1">"Draft an email to the client"</h3>
+          <p class="text-[12px] text-ws-muted leading-relaxed">Compose emails, schedule meetings, set reminders while walking.</p>
+        </div>
+      </div>
+      <div class="uc-card">
+        <div class="h-32 bg-ws-warm flex items-center justify-center"><span class="iconify text-ws-dot" data-icon="lucide:dumbbell" data-width="32"></span></div>
+        <div class="p-5">
+          <p class="text-[10px] font-semibold uppercase tracking-widest text-ws-muted mb-1">Fitness</p>
+          <h3 class="text-sm font-semibold mb-1">"Log my run and calories"</h3>
+          <p class="text-[12px] text-ws-muted leading-relaxed">Voice-controlled workout logging and real-time stats.</p>
+        </div>
+      </div>
+      <div class="uc-card">
+        <div class="h-32 bg-ws-warm flex items-center justify-center"><span class="iconify text-ws-dot" data-icon="lucide:heart-handshake" data-width="32"></span></div>
+        <div class="p-5">
+          <p class="text-[10px] font-semibold uppercase tracking-widest text-ws-muted mb-1">Elderly</p>
+          <h3 class="text-sm font-semibold mb-1">"Remind me to take my pills"</h3>
+          <p class="text-[12px] text-ws-muted leading-relaxed">Medication reminders, emergency calls, daily companionship.</p>
+        </div>
+      </div>
+      <div class="uc-card">
+        <div class="h-32 bg-ws-warm flex items-center justify-center"><span class="iconify text-ws-dot" data-icon="lucide:plane" data-width="32"></span></div>
+        <div class="p-5">
+          <p class="text-[10px] font-semibold uppercase tracking-widest text-ws-muted mb-1">Travel</p>
+          <h3 class="text-sm font-semibold mb-1">"How do I say this in Japanese?"</h3>
+          <p class="text-[12px] text-ws-muted leading-relaxed">Real-time translation and local tips — explore screen-free.</p>
+        </div>
+      </div>
+      <div class="flex-shrink-0 w-2"></div>
+    </div>
+  </div>
+</section>
 
-        const phases = document.querySelectorAll('.scroll-phase');
-        const wispaProduct = document.getElementById('wispa-hero');
-        const noiseLayer = document.getElementById('noise-layer');
-        const progressBar = document.getElementById('progress-bar');
-        const cursor = document.getElementById('cursor');
-        const magneticBtn = document.querySelector('.magnetic');
+<!-- ===== ROADMAP ===== -->
+<section class="py-24 md:py-32">
+  <div class="max-w-3xl mx-auto px-6">
+    <div class="text-center mb-14">
+      <p class="text-[11px] font-medium text-ws-muted uppercase tracking-[.14em] mb-4 sr">Roadmap</p>
+      <h2 class="text-3xl md:text-4xl font-bold tracking-tight sr d1">What's Next</h2>
+    </div>
+    <div class="sr d2">
+      <div class="flex gap-5">
+        <div class="flex flex-col items-center"><div class="rm-dot bg-ws-dark"></div><div class="rm-line flex-1 mt-1"></div></div>
+        <div class="pb-8">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-ws-dark mb-1">Phase 1 — Now</p>
+          <h3 class="text-[15px] font-semibold mb-1">Bluetooth Companion</h3>
+          <p class="text-[13px] text-ws-muted leading-relaxed">Connects to your phone. Voice AI, notifications, smart assistant. Available today.</p>
+        </div>
+      </div>
+      <div class="flex gap-5">
+        <div class="flex flex-col items-center"><div class="rm-dot border-2 border-ws-dot bg-white"></div><div class="rm-line flex-1 mt-1"></div></div>
+        <div class="pb-8">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-ws-muted mb-1">Phase 2 — 2025</p>
+          <h3 class="text-[15px] font-semibold mb-1">Built-in SIM</h3>
+          <p class="text-[13px] text-ws-muted leading-relaxed">Standalone connectivity. No phone needed. Calls, messages, and AI directly from Wispa.</p>
+        </div>
+      </div>
+      <div class="flex gap-5">
+        <div class="flex flex-col items-center"><div class="rm-dot border-2 border-ws-dot bg-white"></div></div>
+        <div>
+          <p class="text-[10px] font-bold uppercase tracking-widest text-ws-muted mb-1">Phase 3 — 2026</p>
+          <h3 class="text-[15px] font-semibold mb-1">Global Expansion</h3>
+          <p class="text-[13px] text-ws-muted leading-relaxed">Multi-carrier support, edge AI processing, health sensors, and ambient intelligence.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-        // --- 2. CURSOR LOGIC ---
-        document.addEventListener('mousemove', (e) => {
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
-        });
+<!-- ===== PRICING ===== -->
+<section id="pricing" class="py-24 md:py-32 bg-white">
+  <div class="max-w-3xl mx-auto px-6">
+    <div class="text-center mb-14">
+      <p class="text-[11px] font-medium text-ws-muted uppercase tracking-[.14em] mb-4 sr">Pricing</p>
+      <h2 class="text-3xl md:text-4xl font-bold tracking-tight sr d1">Simple. No Surprises.</h2>
+    </div>
+    <div class="grid md:grid-cols-2 gap-5 sr d2">
+      <div class="rounded-2xl border border-ws-border p-7 hover:shadow-md transition-shadow bg-white">
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-ws-muted mb-4">Basic</p>
+        <div class="mb-6">
+          <span class="text-3xl font-bold">$49</span>
+          <span class="text-ws-muted text-sm ml-1">one-time</span>
+        </div>
+        <ul class="space-y-2.5 mb-8">
+          <li class="flex items-center gap-2.5 text-[13px] text-ws-sub"><span class="iconify text-ws-text" data-icon="lucide:check" data-width="14"></span>Wispa Device</li>
+          <li class="flex items-center gap-2.5 text-[13px] text-ws-sub"><span class="iconify text-ws-text" data-icon="lucide:check" data-width="14"></span>Voice Commands</li>
+          <li class="flex items-center gap-2.5 text-[13px] text-ws-sub"><span class="iconify text-ws-text" data-icon="lucide:check" data-width="14"></span>Basic AI Responses</li>
+          <li class="flex items-center gap-2.5 text-[13px] text-ws-dot"><span class="iconify text-ws-dot" data-icon="lucide:minus" data-width="14"></span>Advanced AI Models</li>
+        </ul>
+        <button class="btn-ghost w-full price-btn">Get Started</button>
+      </div>
+      <div class="rounded-2xl border-2 border-ws-dark p-7 relative hover:shadow-md transition-shadow bg-white">
+        <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-ws-dark text-white text-[9px] font-bold uppercase tracking-wider">Best Value</div>
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-ws-text mb-4">Pro</p>
+        <div class="mb-6">
+          <span class="text-3xl font-bold">$99</span>
+          <span class="text-ws-muted text-sm ml-1">one-time</span>
+          <span class="text-ws-dot text-xs block mt-0.5">+ $9/mo AI subscription</span>
+        </div>
+        <ul class="space-y-2.5 mb-8">
+          <li class="flex items-center gap-2.5 text-[13px] text-ws-sub"><span class="iconify text-ws-text" data-icon="lucide:check" data-width="14"></span>Everything in Basic</li>
+          <li class="flex items-center gap-2.5 text-[13px] text-ws-sub"><span class="iconify text-ws-text" data-icon="lucide:check" data-width="14"></span>All AI Models</li>
+          <li class="flex items-center gap-2.5 text-[13px] text-ws-sub"><span class="iconify text-ws-text" data-icon="lucide:check" data-width="14"></span>40+ Languages</li>
+          <li class="flex items-center gap-2.5 text-[13px] text-ws-sub"><span class="iconify text-ws-text" data-icon="lucide:check" data-width="14"></span>Task Automation</li>
+        </ul>
+        <button class="btn-primary w-full price-btn" data-plan="pro">Pre-Order Pro</button>
+      </div>
+    </div>
+  </div>
+</section>
 
-        // Add hover effect for interactive elements
-        const interactiveElements = document.querySelectorAll('a, button, .feature-card');
-        interactiveElements.forEach(el => {
-            el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
-            el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
-        });
+<!-- ===== FOUNDERS ===== -->
+<section class="py-24 md:py-32">
+  <div class="max-w-4xl mx-auto px-6">
+    <div class="text-center mb-14">
+      <p class="text-[11px] font-medium text-ws-muted uppercase tracking-[.14em] mb-4 sr">Team</p>
+      <h2 class="text-3xl md:text-4xl font-bold tracking-tight sr d1">Meet the Founders</h2>
+    </div>
+    <div class="grid sm:grid-cols-3 gap-6 sr d2">
+      <div class="founder-card bg-white rounded-2xl border border-ws-border p-7 text-center">
+        <div class="w-20 h-20 rounded-full bg-ws-warm flex items-center justify-center mx-auto mb-5">
+          <span class="text-xl font-bold text-ws-sub">AP</span>
+        </div>
+        <h3 class="text-sm font-semibold mb-0.5">Aryan Patel</h3>
+        <p class="text-[11px] font-medium text-ws-muted uppercase tracking-wider mb-3">Team Leader</p>
+        <p class="text-[12px] text-ws-muted leading-relaxed">Visionary behind Wispa AI — driving product strategy and innovation.</p>
+      </div>
+      <div class="founder-card bg-white rounded-2xl border border-ws-border p-7 text-center">
+        <div class="w-20 h-20 rounded-full bg-ws-warm flex items-center justify-center mx-auto mb-5">
+          <span class="text-xl font-bold text-ws-sub">HV</span>
+        </div>
+        <h3 class="text-sm font-semibold mb-0.5">Harshvardhan Vaghela</h3>
+        <p class="text-[11px] font-medium text-ws-muted uppercase tracking-wider mb-3">Team Member</p>
+        <p class="text-[12px] text-ws-muted leading-relaxed">Engineering lead — building the hardware and AI integration that powers Wispa.</p>
+      </div>
+      <div class="founder-card bg-white rounded-2xl border border-ws-border p-7 text-center">
+        <div class="w-20 h-20 rounded-full bg-ws-warm flex items-center justify-center mx-auto mb-5">
+          <span class="text-xl font-bold text-ws-sub">YV</span>
+        </div>
+        <h3 class="text-sm font-semibold mb-0.5">Yash Valand</h3>
+        <p class="text-[11px] font-medium text-ws-muted uppercase tracking-wider mb-3">Team Member</p>
+        <p class="text-[12px] text-ws-muted leading-relaxed">Design & experience — crafting the minimalist interface and user journey.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-        // Magnetic Button Effect
-        if(magneticBtn) {
-            magneticBtn.addEventListener('mousemove', (e) => {
-                const rect = magneticBtn.getBoundingClientRect();
-                const x = e.clientX - rect.left - rect.width / 2;
-                const y = e.clientY - rect.top - rect.height / 2;
-                
-                // Move button slightly towards cursor
-                magneticBtn.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px) scale(1.05)`;
-            });
+<!-- ===== FINAL CTA ===== -->
+<section id="order" class="py-24 md:py-36 bg-ws-dark">
+  <div class="max-w-2xl mx-auto px-6 text-center">
+    <div class="device dev-sm mx-auto mb-10 sr" style="animation:fl 5s ease-in-out infinite">
+      <div class="mic"></div><div class="led"></div>
+    </div>
+    <h2 class="text-3xl md:text-5xl font-bold tracking-tight text-white mb-4 sr d1">Less Screen.<br>More Life.</h2>
+    <p class="text-neutral-500 text-[15px] max-w-md mx-auto leading-relaxed mb-10 sr d2">Be among the first to own Wispa. Pre-order now and we'll ship when ready.</p>
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto mb-5 sr d3">
+      <input type="email" id="cta-email" placeholder="your@email.com" class="w-full sm:flex-1 px-5 py-3.5 rounded-full bg-white/5 border border-white/10 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-white/25 transition-colors">
+      <button id="cta-btn" class="btn-primary w-full sm:w-auto bg-white text-ws-dark hover:bg-neutral-200">Pre-Order Now</button>
+    </div>
+    <p class="text-neutral-700 text-[11px] sr d4">No spam. Early access + exclusive pricing.</p>
+    <div id="cta-msg" class="hidden mt-6 text-sm text-neutral-300 font-medium">✓ You're on the list!</div>
+  </div>
+</section>
 
-            magneticBtn.addEventListener('mouseleave', () => {
-                magneticBtn.style.transform = 'translate(0px, 0px) scale(1)';
-            });
-        }
+<!-- ===== FOOTER ===== -->
+<footer class="bg-ws-footer pt-16 pb-8">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-10 md:gap-8 pb-12 border-b border-ws-border">
+      <!-- Company -->
+      <div class="col-span-2">
+        <div class="flex items-center gap-2.5 mb-4">
+          <div class="w-5 h-5 rounded-full bg-ws-dark flex items-center justify-center">
+            <div class="w-1.5 h-1.5 rounded-full bg-ws-footer"></div>
+          </div>
+          <span class="font-semibold text-sm tracking-tight">Wispa AI</span>
+        </div>
+        <p class="text-[13px] text-ws-muted leading-relaxed max-w-xs mb-4">A 4cm voice-powered wearable that frees you from your screen. Less Screen. More Life.</p>
+        <div class="flex gap-3">
+          <a href="#" class="w-8 h-8 rounded-full bg-white border border-ws-border flex items-center justify-center hover:bg-ws-warm transition-colors" aria-label="Instagram">
+            <span class="iconify text-ws-sub" data-icon="lucide:instagram" data-width="14"></span>
+          </a>
+          <a href="#" class="w-8 h-8 rounded-full bg-white border border-ws-border flex items-center justify-center hover:bg-ws-warm transition-colors" aria-label="LinkedIn">
+            <span class="iconify text-ws-sub" data-icon="lucide:linkedin" data-width="14"></span>
+          </a>
+          <a href="#" class="w-8 h-8 rounded-full bg-white border border-ws-border flex items-center justify-center hover:bg-ws-warm transition-colors" aria-label="Twitter">
+            <span class="iconify text-ws-sub" data-icon="lucide:twitter" data-width="14"></span>
+          </a>
+          <a href="#" class="w-8 h-8 rounded-full bg-white border border-ws-border flex items-center justify-center hover:bg-ws-warm transition-colors" aria-label="YouTube">
+            <span class="iconify text-ws-sub" data-icon="lucide:youtube" data-width="14"></span>
+          </a>
+        </div>
+      </div>
+      <!-- Navigation -->
+      <div>
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-ws-muted mb-4">Navigation</p>
+        <ul class="space-y-2.5">
+          <li><a href="#hero" class="text-[13px] text-ws-sub hover:text-ws-text transition-colors">Home</a></li>
+          <li><a href="#solution" class="text-[13px] text-ws-sub hover:text-ws-text transition-colors">Product</a></li>
+          <li><a href="#features" class="text-[13px] text-ws-sub hover:text-ws-text transition-colors">Features</a></li>
+          <li><a href="#pricing" class="text-[13px] text-ws-sub hover:text-ws-text transition-colors">Pricing</a></li>
+        </ul>
+      </div>
+      <!-- Contact -->
+      <div>
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-ws-muted mb-4">Contact</p>
+        <ul class="space-y-2.5">
+          <li><a href="mailto:hello@wispa.ai" class="text-[13px] text-ws-sub hover:text-ws-text transition-colors">hello@wispa.ai</a></li>
+          <li><span class="text-[13px] text-ws-sub">+91 98765 43210</span></li>
+          <li><span class="text-[13px] text-ws-sub leading-relaxed">Ahmedabad,<br>Gujarat, India</span></li>
+        </ul>
+      </div>
+      <!-- Legal -->
+      <div>
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-ws-muted mb-4">Legal</p>
+        <ul class="space-y-2.5">
+          <li><a href="#" class="text-[13px] text-ws-sub hover:text-ws-text transition-colors">Privacy Policy</a></li>
+          <li><a href="#" class="text-[13px] text-ws-sub hover:text-ws-text transition-colors">Terms & Conditions</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <p class="text-[11px] text-ws-dot">© 2025 Wispa AI. All rights reserved.</p>
+      <p class="text-[11px] text-ws-dot">Designed with care in India.</p>
+    </div>
+  </div>
+</footer>
 
-        // --- 3. SCROLL STORYTELLING LOGIC ---
-        
-        const phaseObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const phaseId = entry.target.id;
-                    
-                    // Add visible class for CSS animations
-                    entry.target.classList.add('visible');
+<!-- Toasts -->
+<div id="toasts" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"></div>
 
-                    // --- PHASE SPECIFIC ACTIONS ---
+<script>
+document.addEventListener('DOMContentLoaded', () => {
 
-                    // PHASE 2: Awareness (Noise)
-                    if (phaseId === 'phase-2') {
-                        noiseLayer.style.opacity = '0.15';
-                        wispaProduct.style.opacity = '0'; // Hide product
-                    } else {
-                        noiseLayer.style.opacity = '0';
-                    }
+  // ===== PRELOADER =====
+  const pre = document.getElementById('preloader');
+  window.addEventListener('load', () => {
+    setTimeout(() => pre.classList.add('hide'), 1800);
+  });
+  // Fallback
+  setTimeout(() => pre.classList.add('hide'), 3500);
 
-                    // PHASE 3: Revelation (Product Fades In)
-                    if (phaseId.startsWith('phase-3') || entry.target.classList.contains('sticky-wrapper')) {
-                        wispaProduct.style.opacity = '1';
-                        wispaProduct.style.filter = 'blur(0px)';
-                        wispaProduct.style.transform = 'translate(-50%, -50%) scale(1)';
-                    }
+  // ===== SCROLL REVEAL =====
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: 0.06, rootMargin: '0px 0px -20px 0px' });
+  document.querySelectorAll('.sr').forEach(el => obs.observe(el));
 
-                    // PHASE 4: Feeling (Waves animate)
-                    if (phaseId === 'phase-4') {
-                        document.getElementById('voice-waves').style.opacity = '1';
-                        wispaProduct.style.transform = 'translate(-50%, -50%) scale(1.1)'; // Slight zoom
-                    } else {
-                        document.getElementById('voice-waves').style.opacity = '0';
-                    }
+  // ===== NAVBAR =====
+  const nav = document.getElementById('navbar');
+  let lastY = 0;
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    if (y > 60) {
+      nav.style.transform = 'translateY(0)';
+      nav.style.background = 'rgba(250,250,248,0.92)';
+      nav.style.backdropFilter = 'blur(16px)';
+      nav.style.webkitBackdropFilter = 'blur(16px)';
+      nav.style.borderBottom = '1px solid #E5E5E7';
+    } else {
+      nav.style.transform = 'translateY(-100%)';
+    }
+    lastY = y;
+  }, { passive: true });
 
-                    // PHASE 5: Intelligence (Product stays stable)
-                    if (phaseId === 'phase-5') {
-                        wispaProduct.style.transform = 'translate(-50%, -50%) scale(1)';
-                    }
+  // ===== MOBILE MENU =====
+  const mBtn = document.getElementById('mob-btn');
+  const mMenu = document.getElementById('mob-menu');
+  let menuOpen = false;
+  mBtn.addEventListener('click', () => {
+    menuOpen = !menuOpen;
+    mMenu.classList.toggle('hidden', !menuOpen);
+    mBtn.innerHTML = menuOpen
+      ? '<span class="iconify" data-icon="lucide:x" data-width="20"></span>'
+      : '<span class="iconify" data-icon="lucide:menu" data-width="20"></span>';
+  });
+  mMenu.querySelectorAll('.mob-link, .btn-primary').forEach(a => {
+    a.addEventListener('click', () => {
+      menuOpen = false;
+      mMenu.classList.add('hidden');
+      mBtn.innerHTML = '<span class="iconify" data-icon="lucide:menu" data-width="20"></span>';
+    });
+  });
 
-                    // PHASE 6: Use Cases (Highlighting)
-                    if (phaseId === 'phase-6') {
-                        // Logic handled by scroll listener below
-                    }
+  // ===== CTA =====
+  const cBtn = document.getElementById('cta-btn');
+  const cEmail = document.getElementById('cta-email');
+  const cMsg = document.getElementById('cta-msg');
+  cBtn.addEventListener('click', () => {
+    const v = cEmail.value.trim();
+    if (!v || !v.includes('@') || !v.includes('.')) {
+      toast('Please enter a valid email.', 'err');
+      cEmail.focus();
+      return;
+    }
+    cBtn.textContent = '…';
+    cBtn.disabled = true;
+    setTimeout(() => {
+      cBtn.textContent = 'Pre-Order Now';
+      cBtn.disabled = false;
+      cEmail.value = '';
+      cMsg.classList.remove('hidden');
+      toast('Welcome aboard! 🎉', 'ok');
+      setTimeout(() => cMsg.classList.add('hidden'), 4000);
+    }, 900);
+  });
+  cEmail.addEventListener('keypress', e => { if (e.key === 'Enter') cBtn.click(); });
 
-                    // PHASE 7: Future (Product fades out to horizon)
-                    if (phaseId === 'phase-7') {
-                        wispaProduct.style.opacity = '0';
-                        wispaProduct.style.transform = 'translate(-50%, -50%) scale(0.5)';
-                    }
+  // ===== PRICING BUTTONS =====
+  document.querySelectorAll('.price-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.plan === 'pro') {
+        document.getElementById('order').scrollIntoView({ behavior: 'smooth' });
+      } else {
+        toast('Basic plan selected!', 'info');
+      }
+    });
+  });
 
-                }
-            });
-        }, observerOptions);
-
-        phases.forEach(phase => phaseObserver.observe(phase));
-        // Also observe the sticky wrapper
-        const stickyWrapper = document.querySelector('.sticky-wrapper');
-        if(stickyWrapper) phaseObserver.observe(stickyWrapper);
-
-
-        // --- 4. SCROLL VELOCITY & PROGRESS ---
-
-        let lastScrollY = window.scrollY;
-        
-        window.addEventListener('scroll', () => {
-            const currentScrollY = window.scrollY;
-            const docHeight = document.body.scrollHeight - window.innerHeight;
-            const scrollPercent = (currentScrollY / docHeight) * 100;
-
-            // Update progress bar
-            progressBar.style.top = `${scrollPercent}%`;
-
-            // Handle Phase 6 Active States based on scroll position within the phase
-            const phase6 = document.getElementById('phase-6');
-            const rect = phase6.getBoundingClientRect();
-            
-            if (rect.top < window.innerHeight && rect.bottom > 0) {
-                // Calculate which use case is active based on scroll position relative to phase 6
-                // Normalize scroll position within the phase (0 to 1)
-                const relativePos = (window.innerHeight - rect.top) / (rect.height + window.innerHeight);
-                
-                const useCases = document.querySelectorAll('.use-case');
-                // Reset
-                useCases.forEach(c => c.classList.remove('active'));
-
-                if (relativePos > 0.8) {
-                    useCases[2].classList.add('active');
-                } else if (relativePos > 0.4) {
-                    useCases[1].classList.add('active');
-                } else {
-                    useCases[0].classList.add('active');
-                }
-            }
-
-            // Parallax Effect for the Product (Phase 3 & 4 mainly)
-            // It moves slightly opposite to scroll direction for "floating" feel
-            const scrollVelocity = currentScrollY - lastScrollY;
-            
-            // Only apply parallax if product is visible
-            if (wispaProduct.style.opacity === '1') {
-                const currentTransform = window.getComputedStyle(wispaProduct).transform;
-                // Add subtle rotation based on velocity
-                const rotate = Math.max(-10, Math.min(10, scrollVelocity * 0.5));
-                // Note: Combining transforms in JS requires matrix math or concatenating strings carefully.
-                // For simplicity, we rely mainly on CSS transitions triggered by phases, 
-                // but here is a subtle "living" effect.
-            }
-
-            lastScrollY = currentScrollY;
-        });
-
-    </script>
+  // ===== TOAST =====
+  function toast(msg, type) {
+    const c = document.getElementById('toasts');
+    const t = document.createElement('div');
+    const bg = type === 'ok' ? '#1A1A1A' : type === 'err' ? '#dc2626' : '#1A1A1A';
+    t.style.cssText = `background:${bg};color:#fff;font-size:13px;font-weight:500;padding:12px 20px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.1);transform:translateX(120%);transition:transform .4s cubic-bezier(.16,1,.3,1),opacity .4s ease`;
+    t.textContent = msg;
+    c.appendChild(t);
+    requestAnimationFrame(() => { t.style.transform = 'translateX(0)'; });
+    setTimeout(() => {
+      t.style.transform = 'translateX(120%)';
+      t.style.opacity = '0';
+      setTimeout(() => t.remove(), 400);
+    }, 3000);
+  }
+});
+</script>
 </body>
 </html>
